@@ -1,0 +1,84 @@
+[versions]
+
+# Language
+java   = "25"     # https://www.oracle.com/java/technologies/javase/25all-relnotes.html
+kotlin = "2.4.20" # https://plugins.gradle.org/plugin/org.jetbrains.kotlin.jvm
+
+# Building
+shadow      = "9.6.1"  # https://plugins.gradle.org/plugin/com.gradleup.shadow
+buildconfig = "6.0.10" # https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig
+compose     = "1.12.1" # sources are overrated anyway /s
+
+# Project
+coroutines    = "1.11.0" # https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/versions
+serialization = "1.11.0" # https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json/versions
+directories   = "26"     # https://central.sonatype.com/artifact/dev.dirs/directories/versions
+hot-reload    = "1.2.0"  # source
+# Logging
+logback        = "1.6.5" # https://central.sonatype.com/artifact/ch.qos.logback/logback-classic/versions
+kotlin-logging = "8.0.4" # https://central.sonatype.com/artifact/io.github.oshai/kotlin-logging-jvm/versions
+
+# Testing
+junit  = "6.1.3"   # https://central.sonatype.com/artifact/org.junit.jupiter/junit-jupiter/versions
+kotest = "6.2.5"   # https://central.sonatype.com/artifact/io.kotest/kotest-assertions-core/versions
+mockk  = "1.14.11" # https://central.sonatype.com/artifact/io.mockk/mockk/versions
+
+
+[plugins]
+
+# Language
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+# Building
+shadow      = { id = "com.gradleup.shadow",           version.ref = "shadow"      }
+buildconfig = { id = "com.github.gmazzo.buildconfig", version.ref = "buildconfig" }
+
+# Project
+compose          = { id = "org.jetbrains.kotlin.plugin.compose",       version.ref = "kotlin"     }
+compose-desktop  = { id = "org.jetbrains.compose",                     version.ref = "compose"    }
+hot-reload       = { id = "org.jetbrains.compose.hot-reload",          version.ref = "hot-reload" }
+serialization    = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"     }
+
+[libraries]
+
+# Project
+serialization     = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json",      version.ref = "serialization" }
+directories       = { module = "dev.dirs:directories",                                  version.ref = "directories"   }
+coroutines        = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",         version.ref = "coroutines"    }
+compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose"       }
+
+# Logging
+logback        = { module = "ch.qos.logback:logback-classic",     version.ref = "logback"        }
+kotlin-logging = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlin-logging" }
+
+
+# Testing
+junit-jupiter-api       = { module = "org.junit.jupiter:junit-jupiter-api",           version.ref = "junit"      }
+junit-jupiter-engine    = { module = "org.junit.jupiter:junit-jupiter-engine",        version.ref = "junit"      }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher",    version.ref = "junit"      }
+kotest-assertions       = { module = "io.kotest:kotest-assertions-core",              version.ref = "kotest"     }
+mockk                   = { module = "io.mockk:mockk",                                version.ref = "mockk"      }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+
+[bundles]
+frontend = [
+    "compose-resources"   
+]
+
+backend = [
+    #"directories",
+    #"coroutines",
+    "serialization",
+
+    "logback",
+    "kotlin-logging",
+]
+
+testing = [
+    "kotest-assertions",
+    "mockk",
+    "junit-jupiter-api",
+    "junit-jupiter-engine",
+    "junit-platform-launcher",
+    "kotlinx-coroutines-test",
+]
