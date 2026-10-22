@@ -2,7 +2,6 @@ package me.flamingo.pckd.backend.resources
 
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.key.Key
-import me.flamingo.pckd.backend.logger
 import kotlin.io.path.div
 import kotlin.io.path.isDirectory
 import kotlin.io.path.isRegularFile

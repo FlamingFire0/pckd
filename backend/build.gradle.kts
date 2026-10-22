@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.serialization)
+    `java-library`
 }
 
 val qualifier = "me.flamingo"
@@ -8,7 +9,9 @@ val namespace = "$qualifier.${rootProject.name}.${project.name}"
 group = namespace
 
 dependencies {
-    implementation(libs.bundles.backend)
+    api(project(":common"))
+    
+    api(libs.bundles.backend)
     testImplementation(libs.bundles.testing)
 }
 

@@ -1,3 +1,6 @@
+
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.compose)
@@ -11,7 +14,9 @@ group = namespace
 version = "1.0.0"
 
 dependencies {
+    implementation(project(":common"))
     implementation(project(":backend"))
+    
     implementation(compose.desktop.currentOs)
 
     implementation(libs.bundles.frontend)
@@ -21,8 +26,19 @@ dependencies {
 compose {
     desktop {
         application {
-            mainClass = "me.flamingo.pckd.frontend.MainKt"
-            jvmArgs += "--enable-native-access=ALL-UNNAMED"
+            mainClass = "$namespace.MainKt"
+
+            jvmArgs(
+                "--enable-native-access=ALL-UNNAMED"
+            )
+
+            nativeDistributions {
+                targetFormats(TargetFormat.AppImage, TargetFormat.Exe)
+                packageName = rootProject.name
+                packageVersion = version.toString()
+
+                modules("jdk.security.auth")
+            }
         }
     }
 

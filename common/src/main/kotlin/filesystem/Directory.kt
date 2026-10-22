@@ -1,7 +1,6 @@
-package me.flamingo.pckd.backend.filesystem
+package me.flamingo.pckd.common.filesystem
 
-import me.flamingo.pckd.backend.filesystem.File
-import me.flamingo.pckd.backend.logger
+import me.flamingo.pckd.common.logger
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
@@ -17,5 +16,8 @@ open class Directory(override val path: Path) : PathHolder() {
             require(path.isDirectory()) { "Path is not a directory: $path" }
     }
 
-    override fun ensure() { path.createDirectories() }
+    override fun ensure() {
+        if (path.exists()) return
+        path.createDirectories() 
+    }
 }

@@ -7,6 +7,7 @@ class ModelResource(
     key: Key,
     rootDirectory: RootDirectory,
 ) : JsonResource<ModelResource, ModelResource.Companion>(key, rootDirectory, Companion) {
+    
     companion object : ResourceInfo<Companion, ModelResource>(
         "models", "json", ::ModelResource
     )

@@ -1,6 +1,7 @@
 package me.flamingo.pckd.backend
 
 import me.flamingo.pckd.backend.key.Key
+import me.flamingo.pckd.common.logger
 import org.junit.jupiter.api.Test
 
 class Test1 {

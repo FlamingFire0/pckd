@@ -21,5 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
+include("common")
 include("backend")
 include("frontend")
+

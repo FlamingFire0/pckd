@@ -1,4 +1,4 @@
-package me.flamingo.pckd.backend.filesystem
+package me.flamingo.pckd.common.filesystem
 
 import java.nio.file.Path
 

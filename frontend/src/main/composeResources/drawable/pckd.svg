@@ -1,25 +1,96 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="465" height="464" viewBox="0 0 465 464">
-    <defs>
-        <linearGradient id="outline" x1="231.97" y1="29.0323" x2="231.97" y2="434.982" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stop-color="#FF00AA"/>
-            <stop offset="1" stop-color="#FF0000"/>
-        </linearGradient>
-    </defs>
-
-    <!-- Draw the gradient stroke first; the dark hexagon covers its inner half. -->
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="464"
+   height="464"
+   viewBox="0 0 464 464"
+   version="1.1"
+   id="svg7"
+   sodipodi:docname="pckd.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="1.3105858"
+     inkscape:cx="106.44095"
+     inkscape:cy="294.52477"
+     inkscape:window-width="2752"
+     inkscape:window-height="1070"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g7" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="outline"
+       x1="232"
+       y1="30"
+       x2="232"
+       y2="434"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0"
+         stop-color="#FF00AA"
+         id="stop1" />
+      <stop
+         offset="1"
+         stop-color="#FF0000"
+         id="stop2" />
+    </linearGradient>
+  </defs>
+  <!-- Hexagon outline -->
+  <path
+     d="M227 32 C230 30 234 30 237 32 L403 128 C406 130 408 133 408 136 V328 C408 331 406 334 403 336 L237 432 C234 434 230 434 227 432 L61 336 C58 334 56 331 56 328 V136 C56 133 58 130 61 128 Z"
+     fill="none"
+     stroke="url(#outline)"
+     stroke-width="60"
+     id="path2"
+     inkscape:label="" />
+  <!-- Black interior -->
+  <path
+     d="M227 32 C230 30 234 30 237 32 L403 128 C406 130 408 133 408 136 V328 C408 331 406 334 403 336 L237 432 C234 434 230 434 227 432 L61 336 C58 334 56 331 56 328 V136 C56 133 58 130 61 128 Z"
+     fill="#000000"
+     id="black"
+     inkscape:label="" />
+  <!-- Cube -->
+  <g
+     transform="translate(0 -7)"
+     id="g7"
+     inkscape:label="cube">
+    <!-- Yellow underlay for antialiasing gaps -->
     <path
-            d="M226.97 31.9191C230.064 30.1327 233.876 30.1327 236.97 31.9191L402.752 127.633C405.846 129.419 407.752 132.721 407.752 136.293V327.721C407.752 331.294 405.846 334.595 402.752 336.381L236.97 432.095C233.876 433.882 230.064 433.882 226.97 432.095L61.1887 336.381C58.0947 334.595 56.1887 331.294 56.1887 327.721V136.293C56.1887 132.721 58.0947 129.419 61.1887 127.633Z"
-            fill="none"
-            stroke="url(#outline)"
-            stroke-width="60"
-    />
-
+       d="M232 82 L368 160.5 V317.5 L232 396 L96 317.5 V160.5 Z"
+       fill="#FFAA00"
+       id="back"
+       inkscape:label="" />
+    <!-- Right face -->
     <path
-            d="M226.97 31.9191C230.064 30.1327 233.876 30.1327 236.97 31.9191L402.752 127.633C405.846 129.419 407.752 132.721 407.752 136.293V327.721C407.752 331.294 405.846 334.595 402.752 336.381L236.97 432.095C233.876 433.882 230.064 433.882 226.97 432.095L61.1887 336.381C58.0947 334.595 56.1887 331.294 56.1887 327.721V136.293C56.1887 132.721 58.0947 129.419 61.1887 127.633Z"
-            fill="#000000"
-    />
-
-    <path d="M230.957 395.628V238.698L366.863 160.233V317.163L230.957 395.628Z" fill="#FF3900"/>
-    <path d="M231.91 395.396L96.0048 316.93V160L231.91 238.465V395.396Z" fill="#FF7100"/>
-    <path d="M231.91 82.2326L367.816 160.698L231.91 239.163L96.0047 160.698L231.91 82.2327Z" fill="#FFAA00"/>
+       d="M232 396 V239 L368 160.5 V317.5 Z"
+       fill="#FF3900"
+       id="right"
+       inkscape:label="" />
+    <!-- Left face -->
+    <path
+       d="M232 396 L96 317.5 V160.5 L232 239 Z"
+       fill="#FF7100"
+       id="left"
+       inkscape:label="" />
+    <!-- Top face -->
+    <path
+       d="M 232,82 368,160.5 232,239 96,160.5 Z"
+       fill="#ffaa00"
+       id="top"
+       inkscape:label=""
+       style="display:inline" />
+  </g>
 </svg>

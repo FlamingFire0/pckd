@@ -1,6 +1,6 @@
-package me.flamingo.pckd.backend.filesystem
+package me.flamingo.pckd.common.filesystem
 
-import me.flamingo.pckd.backend.logger
+import me.flamingo.pckd.common.logger
 import java.nio.file.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
@@ -18,6 +18,7 @@ open class File(override val path: Path) : PathHolder() {
     }
 
     override fun ensure() { 
+        if (path.exists()) return
         path.createParentDirectories()
         path.createFile()
     }

@@ -5,5 +5,5 @@ import me.flamingo.pckd.backend.key.Key
 
 @Serializable
 class Groups(
-    val groups: Set<Key> = emptySet(),
+    val groups: MutableSet<Key> = mutableSetOf(),
 )

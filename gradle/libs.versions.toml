@@ -5,15 +5,18 @@ java   = "25"     # https://www.oracle.com/java/technologies/javase/25all-relnot
 kotlin = "2.4.20" # https://plugins.gradle.org/plugin/org.jetbrains.kotlin.jvm
 
 # Building
-shadow      = "9.6.1"  # https://plugins.gradle.org/plugin/com.gradleup.shadow
-buildconfig = "6.0.10" # https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig
-compose     = "1.12.1" # sources are overrated anyway /s
+shadow        = "9.6.1"  # https://plugins.gradle.org/plugin/com.gradleup.shadow
+buildconfig   = "6.0.10" # https://plugins.gradle.org/plugin/com.github.gmazzo.buildconfig
+compose       = "1.12.2" # [TODO: add source]
+compose-icons = "1.7.3"  # [TODO: add source]
 
 # Project
 coroutines    = "1.11.0" # https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/versions
 serialization = "1.11.0" # https://central.sonatype.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json/versions
 directories   = "26"     # https://central.sonatype.com/artifact/dev.dirs/directories/versions
-hot-reload    = "1.2.0"  # source
+hot-reload    = "1.2.0"  # [TODO: add source]
+filekit       = "0.16.0" # [TODO: add source]
+
 # Logging
 logback        = "1.6.5" # https://central.sonatype.com/artifact/ch.qos.logback/logback-classic/versions
 kotlin-logging = "8.0.4" # https://central.sonatype.com/artifact/io.github.oshai/kotlin-logging-jvm/versions
@@ -42,10 +45,15 @@ serialization    = { id = "org.jetbrains.kotlin.plugin.serialization", version.r
 [libraries]
 
 # Project
-serialization     = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json",      version.ref = "serialization" }
-directories       = { module = "dev.dirs:directories",                                  version.ref = "directories"   }
-coroutines        = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",         version.ref = "coroutines"    }
-compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose"       }
+serialization     = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json",       version.ref = "serialization" }
+directories       = { module = "dev.dirs:directories",                                   version.ref = "directories"   }
+coroutines        = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",          version.ref = "coroutines"    }
+compose-resources = { module = "org.jetbrains.compose.components:components-resources",  version.ref = "compose"       }
+compose-icons     = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-icons" }
+filekit           = { module = "io.github.vinceglb:filekit-core",                        version.ref = "filekit"       }
+filekit-dialogs   = { module = "io.github.vinceglb:filekit-dialogs",                     version.ref = "filekit"       }
+filekit-compose   = { module = "io.github.vinceglb:filekit-dialogs-compose",             version.ref = "filekit"       }
+#filekit-coil     = { module = "io.github.vinceglb:filekit-coil",                        version.ref = "filekit"       }
 
 # Logging
 logback        = { module = "ch.qos.logback:logback-classic",     version.ref = "logback"        }
@@ -61,17 +69,24 @@ mockk                   = { module = "io.mockk:mockk",                          
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [bundles]
-frontend = [
-    "compose-resources"   
+common = [
+    "directories",
+    "logback",
+    "kotlin-logging",
 ]
 
 backend = [
-    #"directories",
     #"coroutines",
     "serialization",
+]
 
-    "logback",
-    "kotlin-logging",
+frontend = [
+    "compose-resources",
+    "compose-icons",
+    "filekit",
+    "filekit-dialogs",
+    "filekit-compose",
+    #"filekit-coil",
 ]
 
 testing = [

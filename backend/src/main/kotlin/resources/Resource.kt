@@ -1,10 +1,9 @@
 package me.flamingo.pckd.backend.resources
 
-import jdk.internal.vm.ThreadContainers.root
 import me.flamingo.pckd.backend.RootDirectory
-import me.flamingo.pckd.backend.filesystem.File
 import me.flamingo.pckd.backend.key.Identifier
 import me.flamingo.pckd.backend.key.Key
+import me.flamingo.pckd.common.filesystem.File
 
 abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     key: Key,
@@ -18,5 +17,7 @@ abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     fun getFile(): File = File(key.toPath(rootDirectory, resourceDirectory))
     open fun rename(name: String) { key = key.copy(value = name) }
 
+    abstract fun open()
+    
     override fun toString(): String = key.toString()
 }
