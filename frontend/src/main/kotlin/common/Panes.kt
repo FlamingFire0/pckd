@@ -3,7 +3,6 @@ package me.flamingo.pckd.frontend.common
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +23,7 @@ fun panes(
     minRight: Dp = 48.dp,
     left: @Composable () -> Unit = {},
     right: @Composable () -> Unit = {},
+    flip: Boolean = false,
 ) {
     val density = LocalDensity.current
 
@@ -38,16 +38,8 @@ fun panes(
         val limits by rememberUpdatedState(minLeftPx..maxLeftPx)
 
         Row(Modifier.fillMaxSize()) {
-
-                Box(
-                    Modifier
-                        .width(with(density) { widthPx.toDp() })
-                        .fillMaxHeight()
-                        .clipToBounds()
-                ) { left() } 
+            Box(Modifier.width(with(density) { widthPx.toDp() }).fillMaxHeight().clipToBounds()) { if(flip) right() else left() } 
             
-            
-
             Box(
                 Modifier
                     .width(9.dp)
@@ -66,11 +58,10 @@ fun panes(
             ) {
                 Box(
                     Modifier.width(1.dp).fillMaxHeight()
-                        .background(MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
                 )
             }
 
-            Box(Modifier.weight(1f).fillMaxHeight().clipToBounds()) { right() }
+            Box(Modifier.weight(1f).fillMaxHeight().clipToBounds()) { if(flip) left() else right() }
         }
     }
 }

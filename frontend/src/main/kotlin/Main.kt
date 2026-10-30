@@ -16,30 +16,33 @@ import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import org.jetbrains.compose.resources.painterResource
 
+object Main {
+    
+    @JvmStatic
+    fun main(args: Array<String>) = application {
+        FileKit.init(appId = "pckd")
 
-fun main() = application {
-    FileKit.init(appId = "pckd")
-    
-    val typography = jetbrainsMono()
-    
-    Window(
-        title = "pckd",
-        onCloseRequest = ::exitApplication,
-        icon = painterResource(Res.drawable.pckd)
-    ) {
-        CompositionLocalProvider(
-            LocalDensity provides Density(1.25f),
-            LocalContextMenuRepresentation provides Mocha.contextMenu
+        val typography = typography()
+
+        Window(
+            title = "pckd",
+            onCloseRequest = ::exitApplication,
+            icon = painterResource(Res.drawable.pckd)
         ) {
-            MaterialTheme(Mocha.materialColors, typography, shapes) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color    = MaterialTheme.colors.background,
-                ) {
-                    val screen = App.screen
-                    
-                    key(screen) {
-                        screen.content()
+            CompositionLocalProvider(
+                LocalDensity provides Density(1.25f),
+                LocalContextMenuRepresentation provides Mocha.contextMenu
+            ) {
+                MaterialTheme(Mocha.materialColors, typography, shapes) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color    = MaterialTheme.colors.background,
+                    ) {
+                        val screen = App.screen
+
+                        key(screen) {
+                            screen.content()
+                        }
                     }
                 }
             }

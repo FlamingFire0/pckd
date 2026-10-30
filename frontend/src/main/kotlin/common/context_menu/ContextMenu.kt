@@ -1,29 +1,33 @@
 package me.flamingo.pckd.frontend.common.context_menu
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import me.flamingo.pckd.frontend.Mocha
+import me.flamingo.pckd.frontend.common.clampedPositionProvider
+import me.flamingo.pckd.frontend.common.popup
 import kotlin.math.roundToInt
 
 @Composable
@@ -34,136 +38,86 @@ fun contextMenu(
 ) {
     val latestItems by rememberUpdatedState(items)
 
-    var expanded by remember { mutableStateOf(false) }
+    val expanded = remember { mutableStateOf(false) }
     var clickPosition by remember { mutableStateOf(IntOffset.Zero) }
     var openedByKeyboard by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
     var keyboardNavigation by remember { mutableStateOf(false) }
 
-    val isExpanded by rememberUpdatedState(expanded)
-    val menuFocusRequester = remember { FocusRequester() }
-
-    fun openMenu(
-        fromKeyboard: Boolean,
-        position: IntOffset = IntOffset.Zero
-    ) {
+    fun openMenu(fromKeyboard: Boolean, position: IntOffset = IntOffset.Zero) {
         if (latestItems.isEmpty()) return
 
         clickPosition = position
         openedByKeyboard = fromKeyboard
         selectedIndex = null
         keyboardNavigation = fromKeyboard
-        expanded = true
+        expanded.value = true
     }
 
     fun moveSelection(direction: Int) {
-        val available = latestItems
-
-        selectedIndex = if (selectedIndex == null) {
-            // The first navigation key always selects the first enabled item.
-            available.indexOfFirst { it.enabled }
-                .takeIf { it >= 0 }
-        } else {
-            nextEnabledIndex(
-                items = available,
-                currentIndex = selectedIndex!!,
-                direction = direction
-            )
-        }
-
+        selectedIndex = selectedIndex?.let { nextEnabledIndex(latestItems, it, direction) }
+            ?: latestItems.indexOfFirst { it.enabled }.takeIf { it >= 0 }
         keyboardNavigation = true
     }
 
     fun selectBoundary(last: Boolean) {
-        val available = latestItems
-
-        val index = if (last) {
-            available.indexOfLast { it.enabled }
-        } else {
-            available.indexOfFirst { it.enabled }
-        }
-
+        val index = if (last) latestItems.indexOfLast { it.enabled }
+        else latestItems.indexOfFirst { it.enabled }
         selectedIndex = index.takeIf { it >= 0 }
         keyboardNavigation = true
     }
 
-    val positionProvider = remember(clickPosition, openedByKeyboard) {
-        object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
-            ): IntOffset {
-                val desired = if (openedByKeyboard) {
-                    IntOffset(
-                        anchorBounds.left,
-                        anchorBounds.bottom
-                    )
-                } else {
-                    anchorBounds.topLeft + clickPosition
+    // Menu-specific keys; Escape is handled by popup()
+    fun handleMenuKey(event: KeyEvent): Boolean = when (event.key) {
+        Key.DirectionDown -> { moveSelection(1); true }
+        Key.DirectionUp -> { moveSelection(-1); true }
+        Key.Tab -> { moveSelection(if (event.isShiftPressed) -1 else 1); true }
+        Key.MoveHome -> { selectBoundary(last = false); true }
+        Key.MoveEnd -> { selectBoundary(last = true); true }
+        Key.Enter, Key.NumPadEnter, Key.Spacebar -> {
+            selectedIndex
+                ?.let(latestItems::getOrNull)
+                ?.takeIf { it.enabled }
+                ?.let { item ->
+                    expanded.value = false
+                    item.onClick()
                 }
-
-                return IntOffset(
-                    x = desired.x.coerceIn(
-                        0,
-                        (windowSize.width - popupContentSize.width)
-                            .coerceAtLeast(0)
-                    ),
-                    y = desired.y.coerceIn(
-                        0,
-                        (windowSize.height - popupContentSize.height)
-                            .coerceAtLeast(0)
-                    )
-                )
-            }
+            true
         }
+        else -> false
+    }
+
+    val positionProvider = remember(clickPosition, openedByKeyboard) {
+        if (openedByKeyboard) clampedPositionProvider { IntOffset(it.left, it.bottom) }
+        else clampedPositionProvider(clickPosition)
     }
 
     Box(
         modifier = modifier
             .onPreviewKeyEvent { event ->
-                if (event.type != KeyEventType.KeyDown) {
-                    false
-                } else if (
-                    event.key == Key.Menu ||
-                    (event.key == Key.F10 && event.isShiftPressed)
+                if (event.type == KeyEventType.KeyDown &&
+                    (event.key == Key.Menu || (event.key == Key.F10 && event.isShiftPressed))
                 ) {
                     openMenu(fromKeyboard = true)
                     true
-                } else {
-                    false
-                }
+                } else false
             }
             .focusable()
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
-                        val event = awaitPointerEvent(
-                            PointerEventPass.Initial
-                        )
-
-                        if (event.type != PointerEventType.Press) {
-                            continue
-                        }
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        if (event.type != PointerEventType.Press) continue
 
                         if (event.buttons.isSecondaryPressed) {
-                            // Only open on an actual secondary-button press.
-                            val position =
-                                event.changes.firstOrNull()?.position
-                                    ?: continue
-
+                            val position = event.changes.firstOrNull()?.position ?: continue
                             openMenu(
                                 fromKeyboard = false,
-                                position = IntOffset(
-                                    position.x.roundToInt(),
-                                    position.y.roundToInt()
-                                )
+                                position = IntOffset(position.x.roundToInt(), position.y.roundToInt())
                             )
-                        } else if (isExpanded) {
-                            // Do not consume this event: the original window's
-                            // clicked component should still receive the click.
-                            expanded = false
+                        } else if (expanded.value) {
+                            // Not consumed: the clicked component still gets the click.
+                            expanded.value = false
                         }
                     }
                 }
@@ -171,112 +125,31 @@ fun contextMenu(
     ) {
         content()
 
-        if (expanded && items.isNotEmpty()) {
-            Popup(
-                popupPositionProvider = positionProvider,
-                onDismissRequest = { expanded = false },
-                properties = PopupProperties(
-                    focusable = true,
-                    dismissOnClickOutside = true
-                )
+        if (items.isNotEmpty()) {
+            popup(
+                showPopup = expanded,
+                position = clickPosition,
+                positionProvider = positionProvider,
+                onKeyEvent = ::handleMenuKey
             ) {
-                LaunchedEffect(menuFocusRequester) {
-                    menuFocusRequester.requestFocus()
-                }
-
-                val shape = RoundedCornerShape(8.dp)
-
-                Column(
-                    modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .widthIn(min = 180.dp)
-                        .shadow(8.dp, shape)
-                        .clip(shape)
-                        .background(Mocha.base)
-                        .border(1.dp, Mocha.mantle, shape)
-                        .padding(4.dp)
-                        .focusRequester(menuFocusRequester)
-                        .onPreviewKeyEvent { event ->
-                            if (event.type != KeyEventType.KeyDown) {
-                                false
-                            } else {
-                                when (event.key) {
-                                    Key.DirectionDown -> {
-                                        moveSelection(1)
-                                        true
-                                    }
-
-                                    Key.DirectionUp -> {
-                                        moveSelection(-1)
-                                        true
-                                    }
-
-                                    Key.Tab -> {
-                                        moveSelection(
-                                            if (event.isShiftPressed) -1 else 1
-                                        )
-                                        true
-                                    }
-
-                                    Key.MoveHome -> {
-                                        selectBoundary(last = false)
-                                        true
-                                    }
-
-                                    Key.MoveEnd -> {
-                                        selectBoundary(last = true)
-                                        true
-                                    }
-
-                                    Key.Enter,
-                                    Key.NumPadEnter,
-                                    Key.Spacebar -> {
-                                        // Activation requires an enabled,
-                                        // currently highlighted item.
-                                        selectedIndex
-                                            ?.let(latestItems::getOrNull)
-                                            ?.takeIf { it.enabled }
-                                            ?.let { item ->
-                                                expanded = false
-                                                item.onClick()
-                                            }
-
-                                        true
-                                    }
-
-                                    Key.Escape -> {
-                                        expanded = false
-                                        true
-                                    }
-
-                                    else -> false
-                                }
+                items.forEachIndexed { index, item ->
+                    contextMenuRow(
+                        action = item,
+                        selected = index == selectedIndex,
+                        keyboardNavigation = keyboardNavigation,
+                        onHover = { hovered ->
+                            if (hovered) {
+                                selectedIndex = index
+                                keyboardNavigation = false
+                            } else if (!keyboardNavigation && selectedIndex == index) {
+                                selectedIndex = null
                             }
+                        },
+                        onClick = {
+                            expanded.value = false
+                            item.onClick()
                         }
-                        .focusable()
-                ) {
-                    items.forEachIndexed { index, item ->
-                        contextMenuRow(
-                            action = item,
-                            selected = index == selectedIndex,
-                            keyboardNavigation = keyboardNavigation,
-                            onHover = { hovered ->
-                                if (hovered) {
-                                    selectedIndex = index
-                                    keyboardNavigation = false
-                                } else if (
-                                    !keyboardNavigation &&
-                                    selectedIndex == index
-                                ) {
-                                    selectedIndex = null
-                                }
-                            },
-                            onClick = {
-                                expanded = false
-                                item.onClick()
-                            }
-                        )
-                    }
+                    )
                 }
             }
         }
@@ -333,7 +206,7 @@ private fun contextMenuRow(
             .clip(shape)
             .background(
                 if (action.enabled && highlighted) {
-                    Mocha.surface1
+                    Mocha.surface0
                 } else {
                     Color.Transparent
                 }
@@ -353,7 +226,7 @@ private fun contextMenuRow(
     ) {
         Text(
             text = action.label,
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             color = if (action.enabled) Mocha.text else Mocha.overlay0,
             maxLines = 1
         )

@@ -5,16 +5,14 @@ import me.flamingo.pckd.backend.resources.ItemResource
 import me.flamingo.pckd.backend.resources.ModelResource
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.TextureResource
-import kotlin.io.path.exists
-import kotlin.io.path.notExists
 
 class ResourceGroup(
     val root: RootDirectory,
     val key: Key
 ) {
-    val textures = TextureResource.gather(root, key)
-    val models   = ModelResource  .gather(root, key)
-    val items    = ItemResource   .gather(root, key)
+    val textures = TextureResource.gather(root, key).toMutableList()
+    val models   = ModelResource  .gather(root, key).toMutableList()
+    val items    = ItemResource   .gather(root, key).toMutableList()
     
     override fun toString(): String = buildString {
         
@@ -22,12 +20,12 @@ class ResourceGroup(
             appendLine("> $name:")
             resources.forEach {
                 append("  - ")
-                if(it.getFile().path.notExists()) {
+                if(it.getFile().notExists()) {
                     append("[MISSING] ")
                 }
 
                 appendLine("$it")
-                if(it is TextureResource && it.getMeta().path.exists()) {
+                if(it is TextureResource && it.getMeta().exists()) {
                     appendLine("    + meta") 
                 }
             }

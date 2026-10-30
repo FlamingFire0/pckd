@@ -4,7 +4,6 @@ import kotlinx.serialization.KSerializer
 import me.flamingo.pckd.backend.serialization.json
 import me.flamingo.pckd.common.filesystem.File
 import java.nio.file.Path
-import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
@@ -16,7 +15,7 @@ open class ConfigFile<T: Any>(
     var value: T = load()
     
     fun load(): T {
-        return if (path.exists()) 
+        return if (exists()) 
             json.decodeFromString(serializer(), path.readText()) 
         else default().also { save(it) }
     }

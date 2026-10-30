@@ -16,6 +16,7 @@ import io.github.vinceglb.filekit.path
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.History
 import me.flamingo.pckd.frontend.App
+import me.flamingo.pckd.frontend.Mocha
 import me.flamingo.pckd.frontend.common.*
 import me.flamingo.pckd.frontend.common.context_menu.ContextAction
 import me.flamingo.pckd.frontend.common.context_menu.contextMenu
@@ -40,73 +41,83 @@ object Home : Screen {
     
     @Composable
     override fun content() {
-        
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+        Box(Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(painterResource(Res.drawable.pckd), null, Modifier.size(100.dp), tint = Color.Unspecified)
-                Spacer(Modifier.width(15.dp))
-                Text("Welcome to pckd", fontSize = 35.sp)
-            }
-            
-            Spacer(Modifier.height(30.dp))
-            
-            val history = remember { ObservableList(History.File.value.history) }
-            
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(Res.drawable.pckd), null, Modifier.size(100.dp), tint = Color.Unspecified)
+                    Spacer(Modifier.width(15.dp))
+                    Text("Welcome to pckd", fontSize = 35.sp)
+                }
+
+                Spacer(Modifier.height(30.dp))
+
+                val history = remember { ObservableList(History.File.value.history) }
 
 
-            if(history.isNotEmpty()) {
-                Text("Recent Packs", fontSize = 25.sp)
-                
-                Spacer(Modifier.height(10.dp))
-                
-                grouping {
-                    history.forEach {
 
-                        contextMenu(
-                            items = listOf(
-                                ContextAction("Open Directory") {
-                                    it.openInFileManager()
-                                },
-                                ContextAction("Copy Path") {
-                                    copyToClipboard(it.toString())
-                                },
-                                ContextAction("Remove") {
-                                    history.remove(it)
-                                    History.File.save()
-                                }
-                            )
+                if (history.isNotEmpty()) {
+                    Text("Recent Packs", fontSize = 25.sp)
 
-                        ) {
-                            rowButton(onClick = { selectDirectory(it) }) {
-                                Text(
-                                    it.minify(),
-                                    fontSize = 18.sp,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                    Spacer(Modifier.height(10.dp))
+
+                    grouping {
+                        history.forEach {
+
+                            contextMenu(
+                                items = listOf(
+                                    ContextAction("Open Directory") {
+                                        it.openInFileManager()
+                                    },
+                                    ContextAction("Copy Path") {
+                                        copyToClipboard(it.toString())
+                                    },
+                                    ContextAction("Remove") {
+                                        history.remove(it)
+                                        History.File.save()
+                                    }
                                 )
+
+                            ) {
+                                rowButton(onClick = { selectDirectory(it) }) {
+                                    Text(
+                                        it.minify(),
+                                        fontSize = 18.sp,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                                    )
+                                }
                             }
                         }
                     }
+
+                    Spacer(Modifier.height(15.dp))
                 }
 
-                Spacer(Modifier.height(15.dp))
-            }
-
-            val directoryPicker = rememberDirectoryPickerLauncher(
-                onResult = { path ->
-                    path?.path?.let {
-                        selectDirectory(Path.of(it))
+                val directoryPicker = rememberDirectoryPickerLauncher(
+                    onResult = { path ->
+                        path?.path?.let {
+                            selectDirectory(Path.of(it))
+                        }
                     }
-                }
-            )
+                )
 
-            Button(onClick = { directoryPicker.launch() }) {
-                Text("Open Resource Pack")
+                Button(onClick = { directoryPicker.launch() }) {
+                    Text("Open Resource Pack")
+                }
             }
+
+            Text(
+                "Made by FlamingFire0",
+                fontSize = 12.sp,
+                color = Mocha.overlay1,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 12.dp)
+            )
         }
     }
 }

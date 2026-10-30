@@ -19,7 +19,7 @@ import me.flamingo.pckd.frontend.screens.Home
 @Composable
 fun editorTopBar(editor: Editor) {
     Surface(
-        color = Mocha.crust
+        color = Mocha.crust,
     ) {
         Row(
             modifier = Modifier

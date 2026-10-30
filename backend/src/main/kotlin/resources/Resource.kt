@@ -18,6 +18,8 @@ abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     open fun rename(name: String) { key = key.copy(value = name) }
 
     abstract fun open()
+    abstract fun createIfNotExists(): Boolean
     
     override fun toString(): String = key.toString()
+
 }

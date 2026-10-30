@@ -8,8 +8,10 @@ import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.backend.ResourceGroup
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.key.Key
+import me.flamingo.pckd.backend.resources.TextureResource
 import me.flamingo.pckd.frontend.App
 import me.flamingo.pckd.frontend.Mocha
+import me.flamingo.pckd.frontend.common.ObservableList
 import me.flamingo.pckd.frontend.common.PanesState
 import me.flamingo.pckd.frontend.common.panes
 import me.flamingo.pckd.frontend.common.scrollPane
@@ -67,12 +69,27 @@ class Editor(val rootDirectory: RootDirectory) : Screen {
                         val group = ResourceGroup(rootDirectory, selected!!)
 
                         Spacer(Modifier.width(20.dp))
+                        
+                        val textures =  ObservableList(group.textures)
 
-                        groupResourceView("Textures", group.textures)
+                        groupResourceView("Texture", resources = textures) {
+                            val selected = selected ?: return@groupResourceView
+                            val resource = TextureResource(selected.resolve(it), rootDirectory)
+                            resource.createIfNotExists()
+                            textures += resource
+                        }
+                        
                         Spacer(Modifier.width(20.dp))
-                        groupResourceView("Models", group.models)
+                        
+                        groupResourceView("Model", resources = group.models) {
+                            
+                        }
+                        
                         Spacer(Modifier.width(20.dp))
-                        groupResourceView("Items", group.items)
+                        
+                        groupResourceView("Item", resources = group.items) {
+                            
+                        }
                         
                     }
                 }

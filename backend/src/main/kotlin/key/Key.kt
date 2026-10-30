@@ -17,7 +17,8 @@ data class Key(
     val value: String,
 ) {
     companion object : KSerializer<Key> {
-        const val DELIMITER = ":"
+        const val NAMESPACE_DELIMITER = ':'
+        const val PATH_DELIMITER = '/'
         const val DEFAULT_NAMESPACE = "minecraft"
         
         override val descriptor: SerialDescriptor = 
@@ -31,16 +32,16 @@ data class Key(
         
         fun isValid(string: String): Boolean {
             if (string.isBlank()) return false
-            if (!string.contains(DELIMITER)) return true
-            if (string.substringBefore(DELIMITER, "").trim().isBlank()) return false
-            if (string.substringAfter(DELIMITER, "").trim().isBlank()) return false
+            if (!string.contains(NAMESPACE_DELIMITER)) return true
+            if (string.substringBefore(NAMESPACE_DELIMITER, "").trim().isBlank()) return false
+            if (string.substringAfter(NAMESPACE_DELIMITER, "").trim().isBlank()) return false
             return true
         }
     }
 
     constructor(string: String): this(
-        string.substringBefore(DELIMITER, DEFAULT_NAMESPACE),
-        string.substringAfter(DELIMITER),
+        string.substringBefore(NAMESPACE_DELIMITER, DEFAULT_NAMESPACE),
+        string.substringAfter(NAMESPACE_DELIMITER),
     )
     
     fun toPath(root: RootDirectory, resource: ResourceInfo<*, *>, addExtension: Boolean = true): Path =
@@ -50,4 +51,9 @@ data class Key(
     
     override fun toString(): String = toString(false)
     fun toString(short: Boolean) = if(short) value.substringAfterLast("/") else "$namespace:$value"
+    
+    fun resolve(text: String): Key {
+        val text = text.trimStart(PATH_DELIMITER)
+        return Key(namespace, "$value$PATH_DELIMITER$text")
+    }
 }
