@@ -7,11 +7,13 @@ import me.flamingo.pckd.common.Directories
 @Serializable
 data class Programs(
     private val image: Program? = null,
-    private val text:  Program? = null,
+    private val text : Program? = null,
+    private val model: Program? = null,
 ) {
     
-    val imageProgram get() = image ?: Program.DEFAULT
-    val textProgram  get() = text  ?: Program.DEFAULT
+    val imageProgram  get() = image ?: Program.DEFAULT
+    val textProgram   get() = text  ?: Program.DEFAULT
+    val modelProgram  get() = model ?: textProgram
     
     object File : ConfigFile<Programs>(
         Directories.config / "programs.json",

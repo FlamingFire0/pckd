@@ -47,7 +47,7 @@ object Mocha {
         primaryVariant   = maroon,
         secondary        = peach,
         secondaryVariant = yellow,
-        background       = base,
+        background       = mantle,
         surface          = surface0,
         error            = mauve,
         onPrimary        = base,

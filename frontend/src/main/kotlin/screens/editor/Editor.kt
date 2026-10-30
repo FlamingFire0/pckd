@@ -10,7 +10,9 @@ import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.frontend.App
 import me.flamingo.pckd.frontend.Mocha
+import me.flamingo.pckd.frontend.common.PanesState
 import me.flamingo.pckd.frontend.common.panes
+import me.flamingo.pckd.frontend.common.scrollPane
 import me.flamingo.pckd.frontend.common.tree.TreeGroup
 import me.flamingo.pckd.frontend.common.tree.toTree
 import me.flamingo.pckd.frontend.screens.Screen
@@ -18,6 +20,12 @@ import me.flamingo.pckd.frontend.screens.editor.groups.groupResourceView
 import kotlin.io.path.name
 
 class Editor(val rootDirectory: RootDirectory) : Screen {
+    
+    
+    companion object {
+        private val paneState = PanesState()
+        var selected: Key? by mutableStateOf(null)
+    }
     
     fun reload() {
         App.screen = Editor(RootDirectory(rootDirectory.path))
@@ -35,21 +43,21 @@ class Editor(val rootDirectory: RootDirectory) : Screen {
                     addAll(rootDirectory.groups.value.groups)
                 }
             }
-            
-            var selected: Key? by remember { mutableStateOf(null) }
 
             panes(
+                state = paneState,
                 left = {
                     Surface(
                         color = Mocha.crust,
                         modifier = Modifier.fillMaxSize()
                     ) {
-
-                        TreeGroup(
-                            rootDirectory.path.name,
-                            keys.toTree { selected = it },
-                            false,
-                        ).content()
+                        scrollPane {
+                            TreeGroup(
+                                rootDirectory.path.name,
+                                keys.toTree { selected = it },
+                                false,
+                            ).content()
+                        }
                     }
                 },
                 

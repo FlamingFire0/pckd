@@ -2,6 +2,7 @@ package me.flamingo.pckd.backend.config.programs
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.resources.Resource
 import java.awt.Desktop
 import java.nio.file.Path
@@ -14,15 +15,13 @@ open class Program(
 ) {
     override fun toString(): String = file.toString()
     
-    open fun run(resource: Resource<*, *>) {
-        val path = resource.getFile().path
-        
+    open fun run(path: Path, rootDirectory: RootDirectory) {
         val pathString = path.toString()
         val parent     = path.parent?.toString() ?: ""
         val name       = path.name
-        val root       = resource.rootDirectory.path.toString()
-        
-        
+        val root       = rootDirectory.path.toString()
+
+
         val args = arguments.map { it
             .replace(PATH_PLACEHOLDER  , pathString)
             .replace(PARENT_PLACEHOLDER, parent    )
@@ -33,6 +32,9 @@ open class Program(
         ProcessBuilder(file.toString(), *args.toTypedArray()).start()
     }
     
+    
+    fun run(resource: Resource<*, *>) = run(resource.getFile().path, resource.rootDirectory)
+    
     companion object {
         const val PATH_PLACEHOLDER   = "{path}"
         const val PARENT_PLACEHOLDER = "{parent}"
@@ -41,9 +43,7 @@ open class Program(
     }
     
     object DEFAULT : Program(Path.of(""), emptyList()) {
-        override fun run(resource: Resource<*, *>) {
-            val path = resource.getFile().path
-            
+        override fun run(path: Path, rootDirectory: RootDirectory) {
             Desktop.getDesktop().open(path.toFile())
         }
     }

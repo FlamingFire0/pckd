@@ -7,7 +7,7 @@ import java.nio.file.Path
 
 @Serializable
 data class History(
-    val history: MutableSet<@Contextual Path> = mutableSetOf(),
+    val history: MutableList<@Contextual Path> = mutableListOf(),
 ) {
     object File : ConfigFile<History>(
         Directories.localData / "history.json",

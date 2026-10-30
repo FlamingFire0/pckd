@@ -1,56 +1,116 @@
 package me.flamingo.pckd.frontend.common
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import java.awt.Cursor
 
 @Composable
 fun panes(
+    modifier: Modifier = Modifier,
+    state: PanesState = remember { PanesState() },
+    minLeft: Dp = 48.dp,
+    minRight: Dp = 48.dp,
     left: @Composable () -> Unit = {},
     right: @Composable () -> Unit = {},
 ) {
-
-
     val density = LocalDensity.current
-    var sidebarWidth by remember { mutableStateOf(240.dp) }
 
-    Row(Modifier.fillMaxSize()) {
-        Column(
-            Modifier
-                .width(sidebarWidth)
-                .fillMaxHeight()
-        ) {
-            left()
-        }
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val handlePx = with(density) { 9.dp.toPx() }
+        val minLeftPx = with(density) { minLeft.toPx() }
+        val maxLeftPx = (constraints.maxWidth - handlePx - with(density) { minRight.toPx() })
+            .coerceAtLeast(minLeftPx)
+        val widthPx = with(density) { state.left.toPx() }.coerceIn(minLeftPx, maxLeftPx)
 
-        // Draggable divider
-        Box(
-            Modifier
-                .width(5.dp)
-                .fillMaxHeight()
-                .background(MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
-                .draggable(
-                    orientation = Orientation.Horizontal,
-                    state = rememberDraggableState { delta ->
-                        sidebarWidth = (sidebarWidth + with(density) { delta.toDp() })
-                            .coerceIn(160.dp, 420.dp)
-                    }
+        val currentWidth by rememberUpdatedState(widthPx)
+        val limits by rememberUpdatedState(minLeftPx..maxLeftPx)
+
+        Row(Modifier.fillMaxSize()) {
+
+                Box(
+                    Modifier
+                        .width(with(density) { widthPx.toDp() })
+                        .fillMaxHeight()
+                        .clipToBounds()
+                ) { left() } 
+            
+            
+
+            Box(
+                Modifier
+                    .width(9.dp)
+                    .fillMaxHeight()
+                    .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+                    .pointerInput(Unit) {
+                        var grab = 0f
+                        detectHorizontalDragGestures(onDragStart = { grab = it.x }) { change, _ ->
+                            change.consume()
+                            val px = (currentWidth + change.position.x - grab)
+                                .coerceIn(limits.start, limits.endInclusive)
+                            state.left = with(density) { px.toDp() }
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    Modifier.width(1.dp).fillMaxHeight()
+                        .background(MaterialTheme.colors.onSurface.copy(alpha = 0.12f))
                 )
-        )
+            }
 
-        Column(
-            Modifier
-                .weight(1f)
-                .fillMaxHeight()
-        ) {
-            right()
+            Box(Modifier.weight(1f).fillMaxHeight().clipToBounds()) { right() }
         }
     }
+}
+
+@Composable
+fun scrollPane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    val vScroll = rememberScrollState()
+    val hScroll = rememberScrollState()
+
+    BoxWithConstraints(modifier.clipToBounds()) {
+        val paneWidth = maxWidth
+        val paneHeight = maxHeight
+        
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(vScroll)
+                .horizontalScroll(hScroll)
+        ) {
+            // Natural size, but never smaller than the pane (so fillMax* content still fills it)
+            Box(Modifier.widthIn(min = paneWidth).width(IntrinsicSize.Max).heightIn(min = paneHeight)) { content() }
+        }
+
+        if (vScroll.maxValue > 0) {
+            VerticalScrollbar(
+                rememberScrollbarAdapter(vScroll),
+                Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+            )
+        }
+        if (hScroll.maxValue > 0) {
+            HorizontalScrollbar(
+                rememberScrollbarAdapter(hScroll),
+                Modifier.align(Alignment.BottomStart).fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Stable
+class PanesState(initialLeft: Dp = 240.dp) {
+    var left by mutableStateOf(initialLeft)
 }

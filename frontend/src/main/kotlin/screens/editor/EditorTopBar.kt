@@ -6,10 +6,12 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.FileCopy
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.SubdirectoryArrowLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.frontend.App
 import me.flamingo.pckd.frontend.Mocha
 import me.flamingo.pckd.frontend.screens.Home
@@ -30,6 +32,10 @@ fun editorTopBar(editor: Editor) {
 
             IconButton(onClick = { editor.reload() }) {
                 Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Reload")
+            }
+
+            IconButton(onClick = { Programs.File.value.textProgram.run(editor.rootDirectory.groups.path, editor.rootDirectory) }) {
+                Icon(imageVector = Icons.Rounded.FileCopy, contentDescription = "Groups")
             }
         }
     }
