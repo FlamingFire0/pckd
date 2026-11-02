@@ -4,6 +4,8 @@ import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.key.Identifier
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.common.filesystem.File
+import java.nio.file.Files
+import kotlin.io.path.createDirectories
 
 abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     key: Key,
@@ -22,4 +24,13 @@ abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     
     override fun toString(): String = key.toString()
 
+    open fun moveTo(newKey: Key) {
+        val from = getFile().path
+        val to = newKey.toPath(rootDirectory, resourceDirectory)
+
+        to.parent.createDirectories()
+        Files.move(from, to)
+
+        key = newKey
+    }
 }

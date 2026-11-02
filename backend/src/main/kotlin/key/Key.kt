@@ -43,6 +43,10 @@ data class Key(
         string.substringBefore(NAMESPACE_DELIMITER, DEFAULT_NAMESPACE),
         string.substringAfter(NAMESPACE_DELIMITER),
     )
+        
+    //constructor(path: Path, rootDirectory: RootDirectory) : this(
+    //    path.toAbsolutePath().relativeTo(rootDirectory.path)
+    //)
     
     fun toPath(root: RootDirectory, resource: ResourceInfo<*, *>, addExtension: Boolean = true): Path =
         root.assets / namespace / resource.directory / value.run {

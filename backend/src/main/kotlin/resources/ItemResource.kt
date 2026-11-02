@@ -22,6 +22,8 @@ class ItemResource(
         "items", "json", ::ItemResource
     ) {
         fun normalize(name: String) = name.removePrefix("item/")
+        override fun normalize(key: Key) = key.copy(value = normalize(key.value))
+
     }
 
     override fun createIfNotExists(): Boolean {
@@ -31,7 +33,11 @@ class ItemResource(
         file.ensure()
 
         val text = getResource("/defaults/item/default.json")?.readText(Charsets.UTF_8) ?: return false
-        file.path.writeText(Placeholder.applyAll(text, file.path, rootDirectory))
+        file.path.writeText(Placeholder.applyAll(text) {
+            it.root = rootDirectory
+            it.path = getFile().path
+            it.key  = key
+        })
 
         return true
     }

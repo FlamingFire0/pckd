@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "{path}",
+    "model": "{key}",
     "tints": [
       {
         "type": "minecraft:custom_model_data",

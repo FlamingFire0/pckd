@@ -5,10 +5,8 @@ import me.flamingo.pckd.backend.config.getResource
 import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.common.filesystem.File
-import kotlin.io.path.exists
-import kotlin.io.path.nameWithoutExtension
-import kotlin.io.path.notExists
-import kotlin.io.path.writeBytes
+import java.nio.file.Files
+import kotlin.io.path.*
 
 class TextureResource(
     key: Key, 
@@ -40,6 +38,25 @@ class TextureResource(
     }
     
     override fun open() = Programs.File.value.imageProgram.run(this)
+
+    override fun moveTo(newKey: Key) {
+        val oldFile = getFile().path
+        val oldMeta = getMeta().path
+        val oldAse = getAseprite().path
+
+        val newFile = newKey.toPath(rootDirectory, resourceDirectory)
+        val newMeta = newFile.resolveSibling("${newFile.fileName}.mcmeta")
+        val newAse = newFile.resolveSibling(
+            "${newFile.nameWithoutExtension}.aseprite"
+        )
+
+        newFile.parent.createDirectories()
+
+        super.moveTo(newKey)
+
+        if (oldMeta.exists()) Files.move(oldMeta, newMeta)
+        if (oldAse.exists()) Files.move(oldAse, newAse)
+    }
     
     companion object : ResourceInfo<Companion, TextureResource>(
         "textures", "png", ::TextureResource

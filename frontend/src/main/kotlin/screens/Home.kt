@@ -15,7 +15,6 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLaunche
 import io.github.vinceglb.filekit.path
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.History
-import me.flamingo.pckd.frontend.App
 import me.flamingo.pckd.frontend.Mocha
 import me.flamingo.pckd.frontend.common.*
 import me.flamingo.pckd.frontend.common.context_menu.ContextAction
@@ -26,7 +25,7 @@ import me.flamingo.pckd.frontend.screens.editor.Editor
 import org.jetbrains.compose.resources.painterResource
 import java.nio.file.Path
 
-object Home : Screen {
+object Home : Screen() {
     
     fun selectDirectory(path: Path) {
         val root = RootDirectory(path)
@@ -36,7 +35,7 @@ object Home : Screen {
         History.File.value.history.addFirst(path)
         History.File.save()
         
-        App.screen = Editor(root)
+        next { Editor(root) }
     }
     
     @Composable

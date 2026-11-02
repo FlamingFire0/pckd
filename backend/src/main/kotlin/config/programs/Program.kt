@@ -16,11 +16,14 @@ open class Program(
     override fun toString(): String = file.toString()
     
     open fun run(path: Path, rootDirectory: RootDirectory) {
-        val args = arguments.map {
-            Placeholder.applyAll(it, path, rootDirectory)
+        val arguments = arguments.map { argument ->
+            Placeholder.applyAll(argument) {
+                it.path = path
+                it.root = rootDirectory
+            }
         }
 
-        ProcessBuilder(file.toString(), *args.toTypedArray()).start()
+        ProcessBuilder(file.toString(), *arguments.toTypedArray()).start()
     }
     
     fun run(resource: Resource<*, *>) = run(resource.getFile().path, resource.rootDirectory)
