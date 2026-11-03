@@ -30,6 +30,7 @@ import me.flamingo.pckd.frontend.screens.Home
 import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.screens.editor.group_editor.GroupEditor
 import me.flamingo.pckd.frontend.screens.editor.groups.groupResourceView
+import me.flamingo.pckd.frontend.shapes
 import kotlin.io.path.name
 
 class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
@@ -41,77 +42,74 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     var selected: Key? by mutableStateOf(null)
     val keys = ObservableList(rootDirectory.groups.value.groups)
     
-    fun reload() = Editor(RootDirectory(rootDirectory.path)).open()
+    fun reload() {
+        val newEditor = Editor(RootDirectory(rootDirectory.path))
+        newEditor.selected = selected
+        newEditor.open()
+    }
     
     @Composable
-    override fun content() = Column(Modifier.fillMaxSize()) {
-        Surface(color = Mocha.crust) {
-            Row(Modifier.fillMaxWidth()) {
-                IconButton(::previous) {
-                    Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
-                }
-
-                IconButton(::reload) {
-                    Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Reload")
-                }
-
-                IconButton({ Programs.File.value.textProgram.run(rootDirectory.groups.path, rootDirectory) }) {
-                    Icon(imageVector = Icons.Rounded.FileCopy, contentDescription = "Groups")
-                }
-                    
-                IconButton({ next { GroupEditor(this@Editor) } }) { 
-                    Icon(imageVector = Icons.Rounded.AddCircle, contentDescription = "Add") 
-                } 
-            } 
+    fun topBar() = Row(Modifier.fillMaxWidth().height(40.dp)) {
+        IconButton(::previous) {
+            Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
         }
 
-        panes(
-            state = paneState,
-            left = {
-                Surface(
-                    color = Mocha.crust,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    scrollPane {
-                        TreeGroup(
-                            rootDirectory.path.name,
-                            keys.toTree { selected = it },
-                            false,).content()
-                    }
-                }
-            },
-                
-            right = {
-                Row {
-                    if(selected == null) return@panes
-                    val group = ResourceGroup(rootDirectory, selected!!)
+        IconButton(::reload) {
+            Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Reload")
+        }
 
-                    Spacer(Modifier.width(20.dp))
-                        
-                    val textures = ObservableList(group.textures.resources)
-                    val models   = ObservableList(group.models  .resources)
-                    val items    = ObservableList(group.items   .resources)
+        IconButton({ Programs.File.value.textProgram.run(rootDirectory.groups.path, rootDirectory) }) {
+            Icon(imageVector = Icons.Rounded.FileCopy, contentDescription = "Groups")
+        }
 
-                    groupResourceView("Texture", resources = textures) {
-                        group.textures.add(it)
-                        textures.invalidate()
-                    }
-                        
-                    Spacer(Modifier.width(20.dp))
-                        
-                    groupResourceView("Model", resources = models) {
-                        group.models.add(it)
-                        models.invalidate()
-                    }
-                        
-                    Spacer(Modifier.width(20.dp))
-                        
-                    groupResourceView("Item", resources = items) {
-                        group.items.add(it)
-                        items.invalidate()
-                    }
-                }
-            }
-        )
+        IconButton({ next { GroupEditor(this@Editor) } }) {
+            Icon(imageVector = Icons.Rounded.AddCircle, contentDescription = "Add")
+        }
+    }
+    
+    @Composable
+    fun pane(content: @Composable () -> Unit) = Surface(
+        color = Mocha.mantle,
+        modifier = Modifier.fillMaxSize().padding(5.dp),
+        shape = shapes.medium
+    ) {
+        scrollPane(Modifier.padding(10.dp)) {
+            content()
+        }
+    }
+    
+    @Composable
+    fun selectorPane() = pane {
+        TreeGroup(
+            rootDirectory.path.name,
+            keys.toTree { selected = it },
+            false
+        ).content()
+    }
+    
+    @Composable
+    fun editorPane() = pane {
+        Row(Modifier.padding(20.dp)) {
+            val group = ResourceGroup(rootDirectory, selected ?: return@Row)
+
+            groupResourceView(group.textures, "Texture")
+            Spacer(Modifier.width(20.dp))
+            groupResourceView(group.models, "Model")
+            Spacer(Modifier.width(20.dp))
+            groupResourceView(group.items, "Item")
+        }
+    }
+
+    @Composable
+    override fun content() = Surface(color = Mocha.crust) {
+        Column(Modifier.fillMaxSize()) {
+            topBar()
+
+            panes(
+                state = paneState,
+                left  = ::selectorPane,
+                right = ::editorPane,
+            )
+        }
     }
 }

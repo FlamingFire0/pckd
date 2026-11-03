@@ -30,18 +30,13 @@ abstract class ResourceInfo<S: ResourceInfo<S, R>,R: Resource<R, S>>(
                                 Key(
                                     baseKey.namespace,
                                     it.relativeTo(resourceRoot)
-                                        .toString()
+                                        .invariantSeparatorsPathString
                                         .removeSuffix(".$extension")
                                 ),
                                 root
                             )
                         }
                 )
-            }
-
-            // Preserve the empty-slot placeholder.
-            if (isEmpty()) {
-                add(resource(baseKey, root))
             }
         }
     }

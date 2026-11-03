@@ -1,6 +1,7 @@
 package me.flamingo.pckd.frontend
 
 import androidx.compose.foundation.DefaultContextMenuRepresentation
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes
 import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
@@ -9,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.frontend.resources.*
 import org.jetbrains.compose.resources.Font
 
@@ -66,7 +68,11 @@ object Mocha {
         )
 }
 
-val shapes = Shapes()
+val shapes = Shapes(
+    small  = RoundedCornerShape(2.dp),
+    medium = RoundedCornerShape(4.dp),
+    large  = RoundedCornerShape(6.dp),
+)
 
 lateinit var jetbrainsMono: FontFamily
 

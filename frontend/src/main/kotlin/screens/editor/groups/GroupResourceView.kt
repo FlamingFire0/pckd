@@ -21,27 +21,31 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.flamingo.pckd.backend.ResourceSlot
 import me.flamingo.pckd.backend.resources.ModelResource
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.TextureResource
 import me.flamingo.pckd.frontend.Mocha
+import me.flamingo.pckd.frontend.common.*
 import me.flamingo.pckd.frontend.common.context_menu.ContextAction
 import me.flamingo.pckd.frontend.common.context_menu.contextMenu
-import me.flamingo.pckd.frontend.common.grouping
-import me.flamingo.pckd.frontend.common.openInFileManager
-import me.flamingo.pckd.frontend.common.popup
-import me.flamingo.pckd.frontend.common.rowButton
 import me.flamingo.pckd.frontend.jetbrainsMono
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun groupResourceView(
+fun <R: Resource<R, *>> groupResourceView(
+    resourceSlot: ResourceSlot<R, *>,
     name: String,
     plural: String = name + "s",
-    resources: List<Resource<*, *>>,
-    onAdd: (String) -> Unit = {},
 ) {
+    val resources = ObservableList(resourceSlot.resources)
+    
+    fun onAdd(value: String) {
+        resourceSlot.add(value)
+        resources.invalidate()
+    }
+    
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(if(resources.size < 2) name else plural)
 

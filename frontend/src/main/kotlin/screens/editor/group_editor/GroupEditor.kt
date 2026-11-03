@@ -3,7 +3,6 @@ package me.flamingo.pckd.frontend.screens.editor.group_editor
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
@@ -31,33 +30,43 @@ class GroupEditor(val editor: Editor) : Screen(editor) {
     val removed = mutableStateListOf<Key>()
     
     @Composable
-    override fun content() = Column(Modifier.fillMaxSize()) {
-        Surface(Modifier.fillMaxWidth(), color = Mocha.crust) {
-            Row {
-                IconButton(onClick = ::previous) {
-                    Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
-                }
-            }
+    fun topBar() = Row {
+        IconButton(onClick = ::previous) {
+            Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
         }
+    }
+    
+    @Composable
+    fun disabledPane() {
+        val tree = TreeGroup(editor.rootDirectory.path.name, removed.toTree {
+            editor.keys += it
+            removed -= it
+        }, false)
 
-        panes(
-            state = paneState,
-            left = {
-                val tree = TreeGroup(editor.rootDirectory.path.name, removed.toTree {
-                    editor.keys += it
-                    removed -= it
-                }, false)
+        tree.content()
+    }
+    
+    @Composable
+    fun enabledPane() {
 
-                tree.content()
-            },
-            right = {
-                val tree = TreeGroup(editor.rootDirectory.path.name, editor.keys.toTree {
-                    editor.keys -= it
-                    removed += it
-                }, false)
+        val tree = TreeGroup(editor.rootDirectory.path.name, editor.keys.toTree {
+            editor.keys -= it
+            removed += it
+        }, false)
 
-                tree.content()
-            },
-        )
+        tree.content()
+    }
+    
+    @Composable
+    override fun content() = Surface(color = Mocha.crust) {
+        Column(Modifier.fillMaxSize()) {
+            topBar()
+
+            panes(
+                state = paneState,
+                left  = ::disabledPane,
+                right = ::enabledPane,
+            )
+        }
     }
 }

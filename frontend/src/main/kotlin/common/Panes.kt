@@ -12,8 +12,10 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import java.awt.Cursor
+import kotlin.math.roundToInt
 
 @Composable
 fun panes(
@@ -26,11 +28,13 @@ fun panes(
     flip: Boolean = false,
 ) {
     val density = LocalDensity.current
+    val hitWidth = 5.dp
 
     BoxWithConstraints(modifier.fillMaxSize()) {
-        val handlePx = with(density) { 9.dp.toPx() }
+        val hitPx = with(density) { hitWidth.toPx() }
         val minLeftPx = with(density) { minLeft.toPx() }
-        val maxLeftPx = (constraints.maxWidth - handlePx - with(density) { minRight.toPx() })
+        // divider has no layout width now, so no handlePx subtraction
+        val maxLeftPx = (constraints.maxWidth - with(density) { minRight.toPx() })
             .coerceAtLeast(minLeftPx)
         val widthPx = with(density) { state.left.toPx() }.coerceIn(minLeftPx, maxLeftPx)
 
@@ -38,31 +42,31 @@ fun panes(
         val limits by rememberUpdatedState(minLeftPx..maxLeftPx)
 
         Row(Modifier.fillMaxSize()) {
-            Box(Modifier.width(with(density) { widthPx.toDp() }).fillMaxHeight().clipToBounds()) { if(flip) right() else left() } 
-            
-            Box(
-                Modifier
-                    .width(9.dp)
-                    .fillMaxHeight()
-                    .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
-                    .pointerInput(Unit) {
-                        var grab = 0f
-                        detectHorizontalDragGestures(onDragStart = { grab = it.x }) { change, _ ->
-                            change.consume()
-                            val px = (currentWidth + change.position.x - grab)
-                                .coerceIn(limits.start, limits.endInclusive)
-                            state.left = with(density) { px.toDp() }
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    Modifier.width(1.dp).fillMaxHeight()
-                )
+            Box(Modifier.width(with(density) { widthPx.toDp() }).fillMaxHeight().clipToBounds()) {
+                if (flip) right() else left()
             }
-
-            Box(Modifier.weight(1f).fillMaxHeight().clipToBounds()) { if(flip) left() else right() }
+            Box(Modifier.weight(1f).fillMaxHeight().clipToBounds()) {
+                if (flip) left() else right()
+            }
         }
+
+        // Zero-width visually, but a 5dp hit area straddling the boundary, drawn on top
+        Box(
+            Modifier
+                .offset { IntOffset((widthPx - hitPx / 2).roundToInt(), 0) }
+                .width(hitWidth)
+                .fillMaxHeight()
+                .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+                .pointerInput(Unit) {
+                    var grab = 0f
+                    detectHorizontalDragGestures(onDragStart = { grab = it.x }) { change, _ ->
+                        change.consume()
+                        val px = (currentWidth + change.position.x - grab)
+                            .coerceIn(limits.start, limits.endInclusive)
+                        state.left = with(density) { px.toDp() }
+                    }
+                }
+        )
     }
 }
 
@@ -75,7 +79,6 @@ fun scrollPane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
         val paneWidth = maxWidth
         val paneHeight = maxHeight
         
-
         Box(
             Modifier
                 .fillMaxSize()
