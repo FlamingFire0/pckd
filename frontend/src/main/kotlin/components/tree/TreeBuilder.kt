@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common.tree
+package me.flamingo.pckd.frontend.components.tree
 
 import me.flamingo.pckd.backend.key.Key
 

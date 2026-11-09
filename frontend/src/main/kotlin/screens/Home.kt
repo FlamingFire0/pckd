@@ -15,13 +15,18 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLaunche
 import io.github.vinceglb.filekit.path
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.History
-import me.flamingo.pckd.frontend.Mocha
-import me.flamingo.pckd.frontend.common.*
-import me.flamingo.pckd.frontend.common.context_menu.ContextAction
-import me.flamingo.pckd.frontend.common.context_menu.contextMenu
+import me.flamingo.pckd.frontend.components.Grouping
+import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
+import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.editor.Editor
+import me.flamingo.pckd.frontend.theming.Mocha
+import me.flamingo.pckd.frontend.utilities.ObservableList
+import me.flamingo.pckd.frontend.utilities.minify
+import me.flamingo.pckd.frontend.utilities.platform.copyToClipboard
+import me.flamingo.pckd.frontend.utilities.platform.openInFileManager
 import org.jetbrains.compose.resources.painterResource
 import java.nio.file.Path
 
@@ -64,10 +69,10 @@ object Home : Screen() {
 
                     Spacer(Modifier.height(10.dp))
 
-                    grouping {
+                    Grouping {
                         history.forEach {
 
-                            contextMenu(
+                            ContextMenu(
                                 items = listOf(
                                     ContextAction("Open Directory") {
                                         it.openInFileManager()
@@ -82,7 +87,7 @@ object Home : Screen() {
                                 )
 
                             ) {
-                                rowButton(onClick = { selectDirectory(it) }) {
+                                RowButton(onClick = { selectDirectory(it) }) {
                                     Text(
                                         it.minify(),
                                         fontSize = 18.sp,

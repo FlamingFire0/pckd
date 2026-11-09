@@ -5,7 +5,8 @@ import me.flamingo.pckd.backend.config.getResource
 import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.common.filesystem.File
-import java.nio.file.Files
+import me.flamingo.pckd.common.logger
+import java.nio.file.Path
 import kotlin.io.path.*
 
 class TextureResource(
@@ -39,23 +40,34 @@ class TextureResource(
     
     override fun open() = Programs.File.value.imageProgram.run(this)
 
-    override fun moveTo(newKey: Key) {
-        val oldFile = getFile().path
-        val oldMeta = getMeta().path
-        val oldAse = getAseprite().path
-
-        val newFile = newKey.toPath(rootDirectory, resourceDirectory)
-        val newMeta = newFile.resolveSibling("${newFile.fileName}.mcmeta")
-        val newAse = newFile.resolveSibling(
-            "${newFile.nameWithoutExtension}.aseprite"
-        )
-
-        newFile.parent.createDirectories()
-
-        super.moveTo(newKey)
-
-        if (oldMeta.exists()) Files.move(oldMeta, newMeta)
-        if (oldAse.exists()) Files.move(oldAse, newAse)
+    override fun moveTo(newKey: Key): Path? {
+        val destination = super.moveTo(newKey) ?: return null
+        
+        getMeta().path.let { oldMeta -> 
+            if(oldMeta.notExists()) return@let
+            val newMeta = destination.resolveSibling("${destination.fileName}.mcmeta")
+            
+            if(newMeta.exists()) {
+                logger.error { "Cannot move from $oldMeta to $newMeta." }
+                return@let
+            }
+            
+            oldMeta.moveTo(newMeta)
+        }
+        
+        getAseprite().path.let { oldAse ->
+            if(oldAse.notExists()) return@let
+            val newAse  = destination.resolveSibling("${destination.nameWithoutExtension}.aseprite")
+            
+            if(newAse.exists()) {
+                logger.error { "Cannot move from $oldAse to $newAse." }
+                return@let
+            }
+            
+            oldAse.moveTo(newAse)
+        }
+        
+        return destination
     }
     
     companion object : ResourceInfo<Companion, TextureResource>(

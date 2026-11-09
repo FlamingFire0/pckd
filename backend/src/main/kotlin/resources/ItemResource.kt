@@ -7,10 +7,10 @@ import me.flamingo.pckd.backend.key.Key
 import kotlin.io.path.writeText
 
 class ItemResource(
-    key: Key, 
+    baseKey: Key,
     rootDirectory: RootDirectory
 ) : JsonResource<ItemResource, ItemResource.Companion>(
-    key.copy(value = normalize(key.value)), 
+    normalize(baseKey), 
     rootDirectory, 
     Companion
 ) {
@@ -23,13 +23,13 @@ class ItemResource(
     ) {
         fun normalize(name: String) = name.removePrefix("item/")
         override fun normalize(key: Key) = key.copy(value = normalize(key.value))
-
     }
 
     override fun createIfNotExists(): Boolean {
+
         val file = getFile()
         if(file.exists()) return false
-
+        
         file.ensure()
 
         val text = getResource("/defaults/item/default.json")?.readText(Charsets.UTF_8) ?: return false

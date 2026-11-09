@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common
+package me.flamingo.pckd.frontend.components
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -18,12 +18,12 @@ import java.awt.Cursor
 import kotlin.math.roundToInt
 
 @Composable
-fun panes(
+fun Panes(
     modifier: Modifier = Modifier,
     state: PanesState = remember { PanesState() },
-    minLeft: Dp = 48.dp,
+    minLeft:  Dp = 48.dp,
     minRight: Dp = 48.dp,
-    left: @Composable () -> Unit = {},
+    left:  @Composable () -> Unit = {},
     right: @Composable () -> Unit = {},
     flip: Boolean = false,
 ) {
@@ -71,7 +71,7 @@ fun panes(
 }
 
 @Composable
-fun scrollPane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun ScrollPane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val vScroll = rememberScrollState()
     val hScroll = rememberScrollState()
 

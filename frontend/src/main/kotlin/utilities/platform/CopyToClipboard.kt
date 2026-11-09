@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common
+package me.flamingo.pckd.frontend.utilities.platform
 
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection

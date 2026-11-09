@@ -26,7 +26,7 @@ dependencies {
 compose {
     desktop {
         application {
-            mainClass = "$namespace.Main"
+            mainClass = "$namespace.App"
 
             jvmArgs(
                 "--enable-native-access=ALL-UNNAMED"

@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common.context_menu
+package me.flamingo.pckd.frontend.components.contextmenu
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,33 +25,34 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import me.flamingo.pckd.frontend.Mocha
-import me.flamingo.pckd.frontend.common.clampedPositionProvider
-import me.flamingo.pckd.frontend.common.popup
+import me.flamingo.pckd.frontend.components.Popup
+import me.flamingo.pckd.frontend.components.PopupState
+import me.flamingo.pckd.frontend.components.clampedPositionProvider
+import me.flamingo.pckd.frontend.theming.Mocha
 import kotlin.math.roundToInt
 
 @Composable
-fun contextMenu(
+fun ContextMenu(
     items: List<ContextAction>,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
     val latestItems by rememberUpdatedState(items)
 
-    val expanded = remember { mutableStateOf(false) }
-    var clickPosition by remember { mutableStateOf(IntOffset.Zero) }
     var openedByKeyboard by remember { mutableStateOf(false) }
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
     var keyboardNavigation by remember { mutableStateOf(false) }
+    
+    val popupState = remember { PopupState() } 
 
     fun openMenu(fromKeyboard: Boolean, position: IntOffset = IntOffset.Zero) {
         if (latestItems.isEmpty()) return
 
-        clickPosition = position
+        popupState.show(position)
+        
         openedByKeyboard = fromKeyboard
         selectedIndex = null
         keyboardNavigation = fromKeyboard
-        expanded.value = true
     }
 
     fun moveSelection(direction: Int) {
@@ -79,7 +80,7 @@ fun contextMenu(
                 ?.let(latestItems::getOrNull)
                 ?.takeIf { it.enabled }
                 ?.let { item ->
-                    expanded.value = false
+                    popupState.hide()
                     item.onClick()
                 }
             true
@@ -87,9 +88,9 @@ fun contextMenu(
         else -> false
     }
 
-    val positionProvider = remember(clickPosition, openedByKeyboard) {
+    val positionProvider = remember(openedByKeyboard) {
         if (openedByKeyboard) clampedPositionProvider { IntOffset(it.left, it.bottom) }
-        else clampedPositionProvider(clickPosition)
+        else clampedPositionProvider(popupState.position)
     }
 
     Box(
@@ -115,26 +116,25 @@ fun contextMenu(
                                 fromKeyboard = false,
                                 position = IntOffset(position.x.roundToInt(), position.y.roundToInt())
                             )
-                        } else if (expanded.value) {
-                            // Not consumed: the clicked component still gets the click.
-                            expanded.value = false
+                        } else if (popupState.visible) {
+                            popupState.hide()
                         }
                     }
                 }
             }
     ) {
         content()
+        
 
         if (items.isNotEmpty()) {
-            popup(
-                showPopup = expanded,
-                position = clickPosition,
+            Popup(
+                state            = popupState,
                 positionProvider = positionProvider,
-                onKeyEvent = ::handleMenuKey
+                onKeyEvent       = ::handleMenuKey
             ) {
                 items.forEachIndexed { index, item ->
-                    contextMenuRow(
-                        action = item,
+                    ContextMenuRow(
+                        action   = item,
                         selected = index == selectedIndex,
                         keyboardNavigation = keyboardNavigation,
                         onHover = { hovered ->
@@ -146,7 +146,7 @@ fun contextMenu(
                             }
                         },
                         onClick = {
-                            expanded.value = false
+                            popupState.hide()
                             item.onClick()
                         }
                     )
@@ -178,7 +178,7 @@ private fun nextEnabledIndex(
 }
 
 @Composable
-private fun contextMenuRow(
+private fun ContextMenuRow(
     action: ContextAction,
     selected: Boolean,
     keyboardNavigation: Boolean,

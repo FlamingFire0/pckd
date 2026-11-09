@@ -3,54 +3,46 @@ package me.flamingo.pckd.backend
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.ResourceInfo
-import me.flamingo.pckd.common.logger
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.exists
+import kotlin.io.path.*
 
 class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
-    key: Key,
+    baseKey: Key,
     val rootDirectory: RootDirectory,
     val info: I,
 ) {
-    val key: Key = info.normalize(key)
-    
+    val key: Key = info.normalize(baseKey)
     val resources: MutableList<R> = info.gather(rootDirectory, key).toMutableList()
+    
 
-    val isMultiple get() = resources.any { it.key != key && it.getFile().exists() }
-    val isSingle   get() = !isMultiple
-    val isEmpty    get() = resources.none { it.getFile().exists() }
+    fun isMultiple() = resources.any { it.key != key && it.getFile().exists() }
+    fun isSingle  () = !isMultiple()
+    fun isEmpty   () = resources.none { it.getFile().exists() }
 
-    private val leaf get() = key.value.substringAfterLast('/')
-    private val dir  get() = key.toPath(rootDirectory, info, addExtension = false)
+    private fun getLeaf() = key.value.substringAfterLast('/')
+    private fun getDirectoryPath() = key.toPath(rootDirectory, info, addExtension = false)
 
-    init { normalize() }   // see the note on loading below
+    init { normalize() }
 
-    fun add(name: String): R {
+    fun add(name: String): R? {
         val original = (resources.firstOrNull { it.key == key }
             ?: info.resource(key, rootDirectory))
             .takeIf { it.getFile().exists() }
 
-        val target = if (original == null && isEmpty) key else key.resolve(name)
-
+        val leaf = getLeaf()
+        
+        val target = 
+            if (original == null && isEmpty() && name == leaf) key 
+            else key.resolve(name)
+                
         val resource = info.resource(target, rootDirectory)
-
-        require(!resource.getFile().exists()) {
-            "$target already exists"
-        }
-
+        
+        
+        if(resource.getFile().exists()) return null
+        
         if (original != null) {
-            require(name != leaf) { "$name is already the existing file" }
+            if(name == leaf) return null
 
-            val unpackedKey = key.resolve(leaf)
-            val unpacked = info.resource(unpackedKey, rootDirectory)
-
-            require(!unpacked.getFile().exists()) {
-                "$unpackedKey already exists"
-            }
-
-            // Move the original resource AND its companion files.
-            original.moveTo(unpackedKey)
-            logger.info { "original = $original" }
+            original.moveTo(key.resolve(leaf))
 
             if (original !in resources) {
                 resources += original
@@ -62,11 +54,13 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
         resource.createIfNotExists()
         resources += resource
 
+        normalize()
+
         return resource
     }
 
     fun remove(resource: R) {
-        resource.getFile().path.deleteIfExists()            // textures: also delete meta/aseprite
+        resource.getFile().path.deleteIfExists()   // textures: also delete meta/aseprite
         resources -= resource
         normalize()
     }
@@ -74,11 +68,15 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
     private fun normalize() {
         val existing = resources.filter { it.getFile().exists() }
 
+        if(resources.isEmpty()) {
+            val path = key.toPath(rootDirectory, info, addExtension = false).isDirectory()
+        }
+
         val original = existing.firstOrNull { it.key == key }
         val children = existing.filter { it.key != key }
 
         if (original != null && children.isNotEmpty()) {
-            val target = key.resolve(leaf)
+            val target = key.resolve(getLeaf())
 
             require(children.none { it.key == target }) {
                 "$target already exists"
@@ -95,6 +93,12 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
         if (key.toPath(rootDirectory, info).exists()) return
 
         only.moveTo(key)
-        runCatching { dir.deleteIfExists() }
+        
+        val directory = getDirectoryPath()
+        if(directory.isDirectory()) {
+            if(directory.listDirectoryEntries().isEmpty()) {
+                runCatching { directory.deleteExisting() }
+            }
+        }
     }
 }

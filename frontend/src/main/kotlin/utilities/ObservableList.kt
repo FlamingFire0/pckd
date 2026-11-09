@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common
+package me.flamingo.pckd.frontend.utilities
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

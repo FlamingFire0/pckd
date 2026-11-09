@@ -1,6 +1,5 @@
 package me.flamingo.pckd.common.filesystem
 
-import me.flamingo.pckd.common.logger
 import java.nio.file.Path
 import kotlin.io.path.createFile
 import kotlin.io.path.createParentDirectories
@@ -10,9 +9,7 @@ open class File(override val path: Path) : PathHolder() {
     constructor(path: String): this(Path.of(path))
     
     init {
-        if(!exists())
-            logger.info { "File doesn't exist: $path" }
-        else 
+        if(exists()) 
             require(path.isRegularFile()) { "Path is not a file: $path" }
     }
 

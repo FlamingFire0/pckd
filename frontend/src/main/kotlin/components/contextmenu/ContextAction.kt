@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common.context_menu
+package me.flamingo.pckd.frontend.components.contextmenu
 
 data class ContextAction(
     val label: String,

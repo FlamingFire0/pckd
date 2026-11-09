@@ -5,38 +5,40 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddCircle
-import androidx.compose.material.icons.rounded.FileCopy
+import androidx.compose.material.icons.rounded.DataObject
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.backend.ResourceGroup
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.key.Key
-import me.flamingo.pckd.frontend.Mocha
-import me.flamingo.pckd.frontend.common.ObservableList
-import me.flamingo.pckd.frontend.common.PanesState
-import me.flamingo.pckd.frontend.common.panes
-import me.flamingo.pckd.frontend.common.scrollPane
-import me.flamingo.pckd.frontend.common.tree.TreeGroup
-import me.flamingo.pckd.frontend.common.tree.toTree
+import me.flamingo.pckd.frontend.components.Panes
+import me.flamingo.pckd.frontend.components.PanesState
+import me.flamingo.pckd.frontend.components.ScrollPane
+import me.flamingo.pckd.frontend.components.Tooltip
+import me.flamingo.pckd.frontend.components.tree.TreeGroup
+import me.flamingo.pckd.frontend.components.tree.toTree
 import me.flamingo.pckd.frontend.screens.Home
 import me.flamingo.pckd.frontend.screens.Screen
-import me.flamingo.pckd.frontend.screens.editor.group_editor.GroupEditor
-import me.flamingo.pckd.frontend.screens.editor.groups.groupResourceView
-import me.flamingo.pckd.frontend.shapes
+import me.flamingo.pckd.frontend.screens.editor.groupeditor.GroupEditor
+import me.flamingo.pckd.frontend.theming.Mocha
+import me.flamingo.pckd.frontend.theming.Theme
+import me.flamingo.pckd.frontend.utilities.ObservableList
 import kotlin.io.path.name
 
 class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     
     companion object {
-        private val paneState = PanesState()
+        private val paneState = PanesState(350.dp)
     }
     
     var selected: Key? by mutableStateOf(null)
@@ -49,37 +51,43 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     }
     
     @Composable
-    fun topBar() = Row(Modifier.fillMaxWidth().height(40.dp)) {
-        IconButton(::previous) {
-            Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
+    fun TopBar() = Row(Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
+        
+        @Composable
+        fun Button(name: String, icon: ImageVector, onClick: () -> Unit) {
+            Tooltip(name) {
+                IconButton(onClick, Modifier.size(35.dp)) {
+                    Icon(icon, it, Modifier.size(25.dp))
+                }
+            }
         }
 
-        IconButton(::reload) {
-            Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "Reload")
+        Button("Back", Icons.Rounded.KeyboardDoubleArrowLeft, ::previous)
+        
+        Button("Reload", Icons.Rounded.Refresh, ::reload)
+        
+        Button("Modify Groups", Icons.Rounded.Edit) { 
+            next { GroupEditor(this@Editor) } 
         }
-
-        IconButton({ Programs.File.value.textProgram.run(rootDirectory.groups.path, rootDirectory) }) {
-            Icon(imageVector = Icons.Rounded.FileCopy, contentDescription = "Groups")
-        }
-
-        IconButton({ next { GroupEditor(this@Editor) } }) {
-            Icon(imageVector = Icons.Rounded.AddCircle, contentDescription = "Add")
+        
+        Button("Groups (JSON)", Icons.Rounded.DataObject) { 
+            Programs.File.value.textProgram.run(rootDirectory.groups.path, rootDirectory) 
         }
     }
     
     @Composable
-    fun pane(content: @Composable () -> Unit) = Surface(
+    fun Pane(content: @Composable () -> Unit) = Surface(
         color = Mocha.mantle,
         modifier = Modifier.fillMaxSize().padding(5.dp),
-        shape = shapes.medium
+        shape = Theme.shapes.medium
     ) {
-        scrollPane(Modifier.padding(10.dp)) {
+        ScrollPane(Modifier.padding(10.dp)) {
             content()
         }
     }
     
     @Composable
-    fun selectorPane() = pane {
+    fun SelectorPane() = Pane {
         TreeGroup(
             rootDirectory.path.name,
             keys.toTree { selected = it },
@@ -88,27 +96,28 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     }
     
     @Composable
-    fun editorPane() = pane {
+    fun EditorPane() = Pane {
         Row(Modifier.padding(20.dp)) {
             val group = ResourceGroup(rootDirectory, selected ?: return@Row)
 
-            groupResourceView(group.textures, "Texture")
+            GroupResourceView.Textures(group.textures)
             Spacer(Modifier.width(20.dp))
-            groupResourceView(group.models, "Model")
+            GroupResourceView.Models(group.models)
             Spacer(Modifier.width(20.dp))
-            groupResourceView(group.items, "Item")
+            GroupResourceView.Items(group.items)
         }
     }
 
     @Composable
     override fun content() = Surface(color = Mocha.crust) {
         Column(Modifier.fillMaxSize()) {
-            topBar()
+            TopBar()
 
-            panes(
+            Panes(
+                modifier = Modifier.padding(horizontal = 6.dp).padding(bottom = 6.dp),
                 state = paneState,
-                left  = ::selectorPane,
-                right = ::editorPane,
+                left  = ::SelectorPane,
+                right = ::EditorPane,
             )
         }
     }

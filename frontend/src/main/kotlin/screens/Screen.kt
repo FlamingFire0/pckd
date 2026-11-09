@@ -1,11 +1,14 @@
 package me.flamingo.pckd.frontend.screens
 
+import androidx.compose.runtime.Composable
 import me.flamingo.pckd.frontend.App
-import me.flamingo.pckd.frontend.common.ComposeElement
 
 abstract class Screen(
     val previous: Screen? = null
-) : ComposeElement {
+) {
+    @Composable
+    abstract fun content()
+
     fun previous() = previous?.open()
     
     fun open(): Screen {

@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.screens.editor.group_editor
+package me.flamingo.pckd.frontend.screens.editor.groupeditor
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,13 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Modifier
 import me.flamingo.pckd.backend.key.Key
-import me.flamingo.pckd.frontend.Mocha
-import me.flamingo.pckd.frontend.common.PanesState
-import me.flamingo.pckd.frontend.common.panes
-import me.flamingo.pckd.frontend.common.tree.TreeGroup
-import me.flamingo.pckd.frontend.common.tree.toTree
+import me.flamingo.pckd.frontend.components.Panes
+import me.flamingo.pckd.frontend.components.PanesState
+import me.flamingo.pckd.frontend.components.tree.TreeGroup
+import me.flamingo.pckd.frontend.components.tree.toTree
 import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.screens.editor.Editor
+import me.flamingo.pckd.frontend.theming.Mocha
 import kotlin.io.path.name
 
 class GroupEditor(val editor: Editor) : Screen(editor) {
@@ -30,42 +30,45 @@ class GroupEditor(val editor: Editor) : Screen(editor) {
     val removed = mutableStateListOf<Key>()
     
     @Composable
-    fun topBar() = Row {
+    fun TopBar() = Row {
         IconButton(onClick = ::previous) {
             Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
         }
     }
     
     @Composable
-    fun disabledPane() {
-        val tree = TreeGroup(editor.rootDirectory.path.name, removed.toTree {
-            editor.keys += it
-            removed -= it
-        }, false)
-
-        tree.content()
+    fun DisabledPane() {
+        TreeGroup(
+            editor.rootDirectory.path.name, 
+            removed.toTree {
+                editor.keys += it
+                removed -= it
+            },
+            false
+        ).content()
     }
     
     @Composable
-    fun enabledPane() {
-
-        val tree = TreeGroup(editor.rootDirectory.path.name, editor.keys.toTree {
-            editor.keys -= it
-            removed += it
-        }, false)
-
-        tree.content()
+    fun EnabledPane() {
+        TreeGroup(
+            editor.rootDirectory.path.name, 
+            editor.keys.toTree {
+                editor.keys -= it
+                removed += it
+            }, 
+            false
+        ).content()
     }
     
     @Composable
     override fun content() = Surface(color = Mocha.crust) {
         Column(Modifier.fillMaxSize()) {
-            topBar()
+            TopBar()
 
-            panes(
+            Panes(
                 state = paneState,
-                left  = ::disabledPane,
-                right = ::enabledPane,
+                left  = ::DisabledPane,
+                right = ::EnabledPane,
             )
         }
     }

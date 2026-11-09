@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common
+package me.flamingo.pckd.frontend.utilities
 
 import java.nio.file.Path
 

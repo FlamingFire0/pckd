@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.common
+package me.flamingo.pckd.frontend.utilities.platform
 
 import java.awt.Desktop
 import java.nio.file.Files
