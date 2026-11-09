@@ -41,12 +41,12 @@ object App {
                 LocalDensity provides Theme.density,
                 LocalContextMenuRepresentation provides Theme.contextMenu
             ) {
-                MaterialTheme(Theme.materialColors, Theme.typography, Theme.shapes) {
+                MaterialTheme(Theme.materialColors, Theme.typography, Theme.Shapes.shapes) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color    = MaterialTheme.colors.background,
                     ) {
-                        key(screen) { screen.content() }
+                        key(screen) { screen.Content() }
                     }
                 }
             }

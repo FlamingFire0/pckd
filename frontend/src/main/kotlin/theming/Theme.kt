@@ -4,72 +4,75 @@ import androidx.compose.foundation.DefaultContextMenuRepresentation
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import me.flamingo.pckd.frontend.theming.Mocha.base
-import me.flamingo.pckd.frontend.theming.Mocha.mantle
-import me.flamingo.pckd.frontend.theming.Mocha.maroon
-import me.flamingo.pckd.frontend.theming.Mocha.mauve
-import me.flamingo.pckd.frontend.theming.Mocha.overlay0
-import me.flamingo.pckd.frontend.theming.Mocha.peach
-import me.flamingo.pckd.frontend.theming.Mocha.red
-import me.flamingo.pckd.frontend.theming.Mocha.surface0
-import me.flamingo.pckd.frontend.theming.Mocha.text
-import me.flamingo.pckd.frontend.theming.Mocha.yellow
+import me.flamingo.pckd.frontend.utilities.platform.isX11
 
 object Theme {
     var fontFamily: FontFamily = FontFamily.Monospace
         private set
 
-    val typography: Typography by lazy { Typography(fontFamily) }
+    var typography: Typography = Typography(fontFamily)
+        private set
 
     lateinit var textFieldColors: TextFieldColors
         private set
 
-    var density = Density(1.25f)
+    var density = Density(1f)
     
-    val shapes = Shapes(
-        small  = RoundedCornerShape(2.dp),
-        medium = RoundedCornerShape(4.dp),
-        large  = RoundedCornerShape(6.dp),
-    )
+    object Shapes {
+        val tiny    = RoundedCornerShape( 2.dp)
+        val small   = RoundedCornerShape( 4.dp)
+        val medium  = RoundedCornerShape( 6.dp)
+        val big     = RoundedCornerShape( 8.dp)
+        val large   = RoundedCornerShape(10.dp)
+        
+        val shapes = Shapes(tiny, small, medium)
+    }
 
     val materialColors = darkColors(
-        primary          = red,
-        primaryVariant   = maroon,
-        secondary        = peach,
-        secondaryVariant = yellow,
-        background       = mantle,
-        surface          = surface0,
-        error            = mauve,
-        onPrimary        = base,
-        onSecondary      = base,
-        onBackground     = text,
-        onSurface        = text,
-        onError          = base,
+        primary          = Mocha.red,
+        primaryVariant   = Mocha.maroon,
+        secondary        = Mocha.peach,
+        secondaryVariant = Mocha.yellow,
+        background       = Mocha.crust,
+        surface          = Mocha.surface0,
+        error            = Mocha.mauve,
+        onPrimary        = Mocha.crust,
+        onSecondary      = Mocha.crust,
+        onBackground     = Mocha.text,
+        onSurface        = Mocha.text,
+        onError          = Mocha.crust,
     )
 
     val contextMenu = DefaultContextMenuRepresentation(
-        backgroundColor = base,
-        textColor = text,
-        itemHoverColor = surface0,
-        disabledTextColor = overlay0
+        backgroundColor   = Mocha.base,
+        textColor         = Mocha.text,
+        itemHoverColor    = Mocha.surface0,
+        disabledTextColor = Mocha.overlay0
     )
 
     @Composable
-    private fun textFieldColors() = TextFieldDefaults.outlinedTextFieldColors(
-        textColor            = text,
-        cursorColor          = red,
-        backgroundColor      = base,
-        focusedBorderColor   = red,
-        unfocusedBorderColor = surface0,
-        placeholderColor     = overlay0,
+    fun textFieldColors(accent: Color = Mocha.red) = TextFieldDefaults.outlinedTextFieldColors(
+        textColor            = Mocha.text,
+        cursorColor          = Mocha.subtext0,
+        backgroundColor      = Mocha.base,
+        focusedBorderColor   = accent,
+        unfocusedBorderColor = Mocha.surface0,
+        placeholderColor     = Mocha.overlay0,
     )
     
     @Composable
     fun initialize() {
         fontFamily      = jetbrainsMono()
+        typography      = Typography(fontFamily)
         textFieldColors = textFieldColors()
+        density = when {
+            isX11 -> Density(1.25f)
+            else  -> LocalDensity.current
+        }
     }
 }

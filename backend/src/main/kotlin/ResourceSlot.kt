@@ -18,8 +18,8 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
     fun isSingle  () = !isMultiple()
     fun isEmpty   () = resources.none { it.getFile().exists() }
 
-    private fun getLeaf() = key.value.substringAfterLast('/')
-    private fun getDirectoryPath() = key.toPath(rootDirectory, info, addExtension = false)
+    fun getLeaf() = key.value.substringAfterLast('/')
+    fun getDirectoryPath() = key.toPath(rootDirectory, info, addExtension = false)
 
     init { normalize() }
 

@@ -3,38 +3,52 @@ package me.flamingo.pckd.frontend.components.tree
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.frontend.components.FocusBox
 import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.resources.Res
+import me.flamingo.pckd.frontend.resources.cube
+import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
+import org.jetbrains.compose.resources.painterResource
 
 class TreeEntry(
     val name: String,
-    val onClick: () -> Unit = {}
+    val selectedColor: Color = Mocha.blue,
+    val onClick: (TreeEntry) -> Unit = {}
 ) : TreeElement {
+    var isSelected by mutableStateOf(false)
 
     override fun name(): String = name
 
     @Composable
     override fun content(depth: Int) {
+        val color = if(isSelected) selectedColor else Color.Unspecified
+        val backgroundColor = if(isSelected) Mocha.surface0 else Color.Transparent
+        
         FocusBox(
             left  = FocusBox::moveUp,
             right = FocusBox::moveDown,
         ) {
-            RowButton(onClick, Modifier.clip(Theme.shapes.medium)) {
-                Spacer(Modifier.width((depth * 20).dp))
+            Surface(Modifier.clip(Theme.Shapes.small), color = backgroundColor) {
+                RowButton({ onClick(this@TreeEntry) }, Modifier.clip(Theme.Shapes.small)) {
+                    Spacer(Modifier.width((depth * 20).dp))
 
-                Icon(Icons.Rounded.Apps, "Element")
+                    Icon(painterResource(Res.drawable.cube), "Element", tint = color)
 
-                Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(6.dp))
 
-                Text(name)
+                    Text(name, color = color)
+                }
             }   
         }
     }

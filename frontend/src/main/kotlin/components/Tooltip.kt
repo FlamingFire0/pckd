@@ -69,7 +69,7 @@ fun Tooltip(
                 offset = cursor + IntOffset(0, 40)
             ) {
                 Surface(
-                    shape = Theme.shapes.medium,
+                    shape = Theme.Shapes.small,
                     color = Mocha.base,
                     elevation = 4.dp
                 ) {

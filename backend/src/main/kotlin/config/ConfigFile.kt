@@ -12,7 +12,8 @@ open class ConfigFile<T: Any>(
     private val serializer: () -> KSerializer<T>,
     private val default: () -> T
 ): File(path) {
-    var value: T = load()
+    private var _value: T? = null
+    val value: T by lazy { _value ?: reload() }
     
     fun load(): T {
         return if (exists()) 
@@ -20,9 +21,7 @@ open class ConfigFile<T: Any>(
         else default().also { save(it) }
     }
     
-    fun reload() {
-        value = load()
-    }
+    fun reload(): T = load().also { _value = it }
     
     fun save(value: T = this.value) {
         ensure()

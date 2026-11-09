@@ -2,17 +2,13 @@ package me.flamingo.pckd.frontend.screens.editor
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DataObject
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,10 +17,8 @@ import me.flamingo.pckd.backend.ResourceGroup
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.key.Key
-import me.flamingo.pckd.frontend.components.Panes
-import me.flamingo.pckd.frontend.components.PanesState
-import me.flamingo.pckd.frontend.components.ScrollPane
-import me.flamingo.pckd.frontend.components.Tooltip
+import me.flamingo.pckd.frontend.components.*
+import me.flamingo.pckd.frontend.components.tree.TreeEntry
 import me.flamingo.pckd.frontend.components.tree.TreeGroup
 import me.flamingo.pckd.frontend.components.tree.toTree
 import me.flamingo.pckd.frontend.screens.Home
@@ -51,25 +45,29 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     }
     
     @Composable
-    fun TopBar() = Row(Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
+    fun TopBar() = Row(Modifier.fillMaxWidth().padding(vertical = 5.dp).height(40.dp), verticalAlignment = Alignment.CenterVertically) {
         
         @Composable
         fun Button(name: String, icon: ImageVector, onClick: () -> Unit) {
             Tooltip(name) {
-                IconButton(onClick, Modifier.size(35.dp)) {
+                SmallButton(
+                    onClick, 
+                    Modifier.size(40.dp).aspectRatio(1f),
+                ) {
                     Icon(icon, it, Modifier.size(25.dp))
                 }
             }
         }
 
+        Spacer(Modifier.width(5.dp))
         Button("Back", Icons.Rounded.KeyboardDoubleArrowLeft, ::previous)
-        
+        Spacer(Modifier.width(7.dp))
         Button("Reload", Icons.Rounded.Refresh, ::reload)
-        
+        Spacer(Modifier.width(7.dp))
         Button("Modify Groups", Icons.Rounded.Edit) { 
             next { GroupEditor(this@Editor) } 
         }
-        
+        Spacer(Modifier.width(7.dp))
         Button("Groups (JSON)", Icons.Rounded.DataObject) { 
             Programs.File.value.textProgram.run(rootDirectory.groups.path, rootDirectory) 
         }
@@ -79,7 +77,7 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     fun Pane(content: @Composable () -> Unit) = Surface(
         color = Mocha.mantle,
         modifier = Modifier.fillMaxSize().padding(5.dp),
-        shape = Theme.shapes.medium
+        shape = Theme.Shapes.small
     ) {
         ScrollPane(Modifier.padding(10.dp)) {
             content()
@@ -88,9 +86,16 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     
     @Composable
     fun SelectorPane() = Pane {
+        var selectedEntry by remember { mutableStateOf<TreeEntry?>(null) }
+        
         TreeGroup(
             rootDirectory.path.name,
-            keys.toTree { selected = it },
+            keys.toTree {
+                selectedEntry?.isSelected = false
+                isSelected = true
+                selectedEntry = this
+                selected = it 
+            },
             false
         ).content()
     }
@@ -109,12 +114,11 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     }
 
     @Composable
-    override fun content() = Surface(color = Mocha.crust) {
-        Column(Modifier.fillMaxSize()) {
+    override fun Content() = Box() {
+        Column(Modifier.fillMaxSize().padding(6.dp)) {
             TopBar()
 
             Panes(
-                modifier = Modifier.padding(horizontal = 6.dp).padding(bottom = 6.dp),
                 state = paneState,
                 left  = ::SelectorPane,
                 right = ::EditorPane,

@@ -59,7 +59,7 @@ fun Popup(
         LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
 
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .width(IntrinsicSize.Max)
                 .widthIn(min = minWidth)
                 .shadow(8.dp, shape)
@@ -67,6 +67,7 @@ fun Popup(
                 .background(Mocha.base)
                 .border(1.dp, Mocha.surface0, shape)
                 .padding(4.dp)
+                .then(modifier)
                 .focusRequester(focusRequester)
                 .onPreviewKeyEvent { event ->
                     when {

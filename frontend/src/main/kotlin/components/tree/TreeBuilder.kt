@@ -10,7 +10,7 @@ private class TreeNode(
 }
 
 fun Iterable<Key>.toTree(
-    onSelect: (Key) -> Unit = {}
+    onSelect: TreeEntry.(Key) -> Unit = {},
 ): List<TreeElement> {
     val roots = linkedMapOf<String, TreeNode>()
 
@@ -45,7 +45,7 @@ fun Iterable<Key>.toTree(
 
             TreeEntry(
                 name = node.name,
-                onClick = { onSelect(key) }
+                onClick = { it.onSelect(key) }
             )
         } else {
             TreeGroup(

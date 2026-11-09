@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.frontend.components.FocusBox
 import me.flamingo.pckd.frontend.components.FocusBox.focusManager
 import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
 
 class TreeGroup(
@@ -64,13 +65,14 @@ class TreeGroup(
                     true
                 }
             ) {
-                RowButton({ expanded = !expanded }, Modifier.clip(Theme.shapes.medium)) {
+                RowButton({ expanded = !expanded }, Modifier.clip(Theme.Shapes.small)) {
                     Spacer(Modifier.width((depth * 20).dp))
 
                     Icon(
                         if (expanded) Icons.Rounded.FolderOpen
                         else          Icons.Rounded.Folder,
                         "Group",
+                        tint = Mocha.yellow
                     )
 
                     Spacer(Modifier.width(6.dp))

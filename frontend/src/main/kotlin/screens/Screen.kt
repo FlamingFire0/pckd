@@ -7,7 +7,7 @@ abstract class Screen(
     val previous: Screen? = null
 ) {
     @Composable
-    abstract fun content()
+    abstract fun Content()
 
     fun previous() = previous?.open()
     

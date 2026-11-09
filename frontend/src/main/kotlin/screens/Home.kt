@@ -3,11 +3,15 @@ package me.flamingo.pckd.frontend.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -15,14 +19,17 @@ import io.github.vinceglb.filekit.dialogs.compose.rememberDirectoryPickerLaunche
 import io.github.vinceglb.filekit.path
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.History
+import me.flamingo.pckd.common.Directories
 import me.flamingo.pckd.frontend.components.Grouping
 import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.components.SmallButton
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.editor.Editor
 import me.flamingo.pckd.frontend.theming.Mocha
+import me.flamingo.pckd.frontend.theming.Theme
 import me.flamingo.pckd.frontend.utilities.ObservableList
 import me.flamingo.pckd.frontend.utilities.minify
 import me.flamingo.pckd.frontend.utilities.platform.copyToClipboard
@@ -44,10 +51,11 @@ object Home : Screen() {
     }
     
     @Composable
-    override fun content() {
-        Box(Modifier.fillMaxSize()) {
+    override fun Content() = Box(Modifier.fillMaxSize()) {
+        
+        Surface(Modifier.align(Alignment.Center).padding(10.dp).clip(Theme.Shapes.medium), color = Mocha.mantle) {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                Modifier.fillMaxSize().padding(horizontal = 120.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -58,7 +66,13 @@ object Home : Screen() {
                     Text("Welcome to pckd", fontSize = 35.sp)
                 }
 
-                Spacer(Modifier.height(30.dp))
+                Text(
+                    "Made by FlamingFire0",
+                    fontSize = 12.sp,
+                    color = Mocha.overlay1,
+                )
+
+                Spacer(Modifier.height(100.dp))
 
                 val history = remember { ObservableList(History.File.value.history) }
 
@@ -114,14 +128,13 @@ object Home : Screen() {
                 }
             }
 
-            Text(
-                "Made by FlamingFire0",
-                fontSize = 12.sp,
-                color = Mocha.overlay1,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 12.dp)
-            )
+            SmallButton(
+                { Directories.config.path.openInFileManager() },
+                Modifier.align(Alignment.BottomEnd).padding(12.dp).size(50.dp).aspectRatio(1f),
+                backgroundColor = Mocha.base,
+            ) {
+                Icon(Icons.Rounded.Settings, "Settings", Modifier.size(30.dp))
+            }
         }
     }
 }

@@ -61,7 +61,7 @@ class GroupEditor(val editor: Editor) : Screen(editor) {
     }
     
     @Composable
-    override fun content() = Surface(color = Mocha.crust) {
+    override fun Content() = Surface(color = Mocha.crust) {
         Column(Modifier.fillMaxSize()) {
             TopBar()
 

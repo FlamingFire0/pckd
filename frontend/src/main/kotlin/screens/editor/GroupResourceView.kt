@@ -1,15 +1,10 @@
 package me.flamingo.pckd.frontend.screens.editor
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
@@ -34,6 +29,7 @@ import me.flamingo.pckd.frontend.components.PopupState
 import me.flamingo.pckd.frontend.components.RowButton
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
+import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
 import me.flamingo.pckd.frontend.utilities.ObservableList
 import me.flamingo.pckd.frontend.utilities.platform.openInFileManager
@@ -97,35 +93,49 @@ object GroupResourceView {
 
                 val popupState = remember { PopupState() }
 
-                Popup(popupState) {
-                    var text by remember { mutableStateOf("") }
+                Popup(popupState, Modifier.padding(10.dp)) {
+                    var text by remember { mutableStateOf(if(resourceSlot.isEmpty()) resourceSlot.getLeaf() else "") }
+                    
+                    fun add() {
+                        it.visible = false
+                        resourceSlot.add(text)
+                        resources.invalidate()
+                    }
                     
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("New $name")
+                        
+                        Spacer(Modifier.height(10.dp))
 
                         OutlinedTextField(
                             value = text,
-                            onValueChange = { text = it },
+                            onValueChange = { value -> text = value },
                             placeholder = { Text("Resource name") },
                             singleLine = true,
                             shape = RoundedCornerShape(6.dp),
                             textStyle = TextStyle(fontSize = 14.sp, fontFamily = Theme.fontFamily),
-                            colors = Theme.textFieldColors,
+                            colors = Theme.textFieldColors(Mocha.green),
                             modifier = Modifier.fillMaxWidth(),
                             trailingIcon = {
                                 IconButton(onClick = { text = "" }) {
-                                    Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear")
+                                    Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear", tint = Mocha.overlay2)
                                 }
                             },
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(
-                                onDone = {
-                                    it.visible = false
-                                    resourceSlot.add(text)
-                                    resources.invalidate()
-                                }
+                                onDone = { add() }
                             )
                         )
+
+                        Spacer(Modifier.height(10.dp))
+
+                        Button(
+                            ::add, 
+                            shape = Theme.Shapes.small, 
+                            colors = ButtonDefaults.textButtonColors(Mocha.green, Mocha.crust)
+                        ) {
+                            Text("Create")
+                        }
                     }
                 }
 
@@ -135,7 +145,7 @@ object GroupResourceView {
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier.onPointerEvent(PointerEventType.Press, onEvent = { popupState.updatePositionFromEvent(it) })
                 ) {
-                    Icon(Icons.Rounded.Add, contentDescription = "Add")
+                    Icon(Icons.Rounded.Add, "Add", tint = Mocha.green)
                 }
             }
         }

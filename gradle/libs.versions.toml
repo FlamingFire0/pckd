@@ -45,15 +45,16 @@ serialization    = { id = "org.jetbrains.kotlin.plugin.serialization", version.r
 [libraries]
 
 # Project
-serialization     = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json",       version.ref = "serialization" }
-directories       = { module = "dev.dirs:directories",                                   version.ref = "directories"   }
-coroutines        = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",          version.ref = "coroutines"    }
-compose-resources = { module = "org.jetbrains.compose.components:components-resources",  version.ref = "compose"       }
-compose-icons     = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-icons" }
-filekit           = { module = "io.github.vinceglb:filekit-core",                        version.ref = "filekit"       }
-filekit-dialogs   = { module = "io.github.vinceglb:filekit-dialogs",                     version.ref = "filekit"       }
-filekit-compose   = { module = "io.github.vinceglb:filekit-dialogs-compose",             version.ref = "filekit"       }
-#filekit-coil     = { module = "io.github.vinceglb:filekit-coil",                        version.ref = "filekit"       }
+serialization           = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json",       version.ref = "serialization" }
+directories             = { module = "dev.dirs:directories",                                   version.ref = "directories"   }
+coroutines              = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core",          version.ref = "coroutines"    }
+compose-resources       = { module = "org.jetbrains.compose.components:components-resources",  version.ref = "compose"       }
+material-icons          = { module = "org.jetbrains.compose.material:material-icons-core",     version.ref = "compose-icons" }
+material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "compose-icons" }
+filekit                 = { module = "io.github.vinceglb:filekit-core",                        version.ref = "filekit"       }
+filekit-dialogs         = { module = "io.github.vinceglb:filekit-dialogs",                     version.ref = "filekit"       }
+filekit-compose         = { module = "io.github.vinceglb:filekit-dialogs-compose",             version.ref = "filekit"       }
+#filekit-coil           = { module = "io.github.vinceglb:filekit-coil",                        version.ref = "filekit"       }
 
 # Logging
 logback        = { module = "ch.qos.logback:logback-classic",     version.ref = "logback"        }
@@ -82,7 +83,8 @@ backend = [
 
 frontend = [
     "compose-resources",
-    "compose-icons",
+    "material-icons",
+    "material-icons-extended",
     "filekit",
     "filekit-dialogs",
     "filekit-compose",
