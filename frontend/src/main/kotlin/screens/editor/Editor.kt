@@ -38,6 +38,8 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     var selected: Key? by mutableStateOf(null)
     val keys = ObservableList(rootDirectory.groups.value.groups)
     
+    val treeRoot: TreeGroup = TreeGroup(rootDirectory.path.name, mergeable = false)
+    
     fun reload() {
         val newEditor = Editor(RootDirectory(rootDirectory.path))
         newEditor.selected = selected
@@ -88,16 +90,17 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     fun SelectorPane() = Pane {
         var selectedEntry by remember { mutableStateOf<TreeEntry?>(null) }
         
-        TreeGroup(
-            rootDirectory.path.name,
-            keys.toTree {
-                selectedEntry?.isSelected = false
-                isSelected = true
-                selectedEntry = this
-                selected = it 
-            },
-            false
-        ).content()
+        if(treeRoot.children.isEmpty())
+            treeRoot.children.addAll(
+                keys.toTree {
+                    selectedEntry?.isSelected = false
+                    isSelected = true
+                    selectedEntry = this
+                    selected = it
+                },
+            )
+        
+        treeRoot.content()
     }
     
     @Composable

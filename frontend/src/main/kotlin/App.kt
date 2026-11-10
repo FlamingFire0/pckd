@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.github.vinceglb.filekit.FileKit
+import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.Home
@@ -24,11 +25,17 @@ object App {
     var screen: Screen by mutableStateOf(Home)
     lateinit var window: ComposeWindow
     
+    fun createGlobalConfigs() {
+        Programs.File.createDefaultIfNotExists()
+    }
+    
     @JvmStatic
     fun main(args: Array<String>) = application {
         FileKit.init(NAME)
 
         Theme.initialize()
+
+        createGlobalConfigs()
 
         Window(
             title = NAME,

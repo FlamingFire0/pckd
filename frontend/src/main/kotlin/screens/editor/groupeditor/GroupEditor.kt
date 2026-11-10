@@ -39,24 +39,24 @@ class GroupEditor(val editor: Editor) : Screen(editor) {
     @Composable
     fun DisabledPane() {
         TreeGroup(
-            editor.rootDirectory.path.name, 
-            removed.toTree {
+            editor.rootDirectory.path.name,
+            mergeable = false,
+            children = removed.toTree {
                 editor.keys += it
                 removed -= it
             },
-            false
         ).content()
     }
     
     @Composable
     fun EnabledPane() {
         TreeGroup(
-            editor.rootDirectory.path.name, 
-            editor.keys.toTree {
+            editor.rootDirectory.path.name,
+            mergeable = false,
+            children = editor.keys.toTree {
                 editor.keys -= it
                 removed += it
-            }, 
-            false
+            },
         ).content()
     }
     

@@ -27,4 +27,9 @@ open class ConfigFile<T: Any>(
         ensure()
         path.writeText(json.encodeToString(serializer(), value))
     }
+    
+    open fun createDefaultIfNotExists() {
+        if(exists()) return
+        save(default())
+    }
 }

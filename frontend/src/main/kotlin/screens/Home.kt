@@ -129,7 +129,9 @@ object Home : Screen() {
             }
 
             SmallButton(
-                { Directories.config.path.openInFileManager() },
+                onClick = { 
+                    Directories.config.path.openInFileManager() 
+                },
                 Modifier.align(Alignment.BottomEnd).padding(12.dp).size(50.dp).aspectRatio(1f),
                 backgroundColor = Mocha.base,
             ) {

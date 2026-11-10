@@ -6,10 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.FolderOpen
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
@@ -18,14 +15,20 @@ import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.frontend.components.FocusBox
 import me.flamingo.pckd.frontend.components.FocusBox.focusManager
 import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
+import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
 
 class TreeGroup(
     val name: String,
-    val children: List<TreeElement> = emptyList(),
-    val mergeable: Boolean = true,
+    override var parent: TreeGroup? = null,
+    val contextActions: (TreeGroup) -> List<ContextAction> = { listOf() },
+    val mergeable: Boolean = true, 
+    children: List<TreeElement> = emptyList(),
 ) : TreeElement {
+    val children = mutableStateListOf<TreeElement>().also { it.addAll(children) }
+    
     
     var expanded by mutableStateOf(true)
     
@@ -51,47 +54,53 @@ class TreeGroup(
 
     @Composable
     override fun content(depth: Int) {
+        
+        val contextActions = remember { contextActions(this) }
 
         Column(Modifier.fillMaxWidth()) {
-            FocusBox(
-                left = {
-                    if(expanded) expanded = false
-                    else FocusBox.moveUp()
-                    true
-                },
-                right = {
-                    if (!expanded) expanded = true
-                    else FocusBox.moveDown()
-                    true
-                }
-            ) {
-                RowButton({ expanded = !expanded }, Modifier.clip(Theme.Shapes.small)) {
-                    Spacer(Modifier.width((depth * 20).dp))
+            ContextMenu(contextActions) {
+                FocusBox(
+                    left = {
+                        if (expanded) expanded = false
+                        else FocusBox.moveUp()
+                        true
+                    },
+                    right = {
+                        if (!expanded) expanded = true
+                        else FocusBox.moveDown()
+                        true
+                    }
+                ) {
+                    RowButton({ expanded = !expanded }, Modifier.clip(Theme.Shapes.small)) {
+                        Spacer(Modifier.width((depth * 20).dp))
 
-                    Icon(
-                        if (expanded) Icons.Rounded.FolderOpen
-                        else          Icons.Rounded.Folder,
-                        "Group",
-                        tint = Mocha.yellow
-                    )
+                        Icon(
+                            if (expanded) Icons.Rounded.FolderOpen
+                            else Icons.Rounded.Folder,
+                            "Group",
+                            tint = Mocha.yellow
+                        )
 
-                    Spacer(Modifier.width(6.dp))
+                        Spacer(Modifier.width(6.dp))
 
-                    Text(name())
-                }
-            }
-            Box(
-                Modifier.onKeyEvent { event ->
-                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
-
-                    when (event.key) {
-                        
-                        Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down)
-                        Key.DirectionUp   -> focusManager.moveFocus(FocusDirection.Up)
-                        else -> false
+                        Text(name())
                     }
                 }
-            )
+                Box(
+                    Modifier.onKeyEvent { event ->
+                        if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+
+                        when(event.key) {
+
+                            Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down)
+                            Key.DirectionUp   -> focusManager.moveFocus(FocusDirection.Up)
+                            else              -> false
+                        }
+                    }
+                )
+            }
+                
+            Spacer(Modifier.height(2.dp))
 
             if (expanded) Elements(depth)
         }
