@@ -12,14 +12,16 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.github.vinceglb.filekit.FileKit
 import me.flamingo.pckd.backend.config.programs.Programs
-import me.flamingo.pckd.common.logger
+import me.flamingo.pckd.frontend.components.ErrorDialog
 import me.flamingo.pckd.frontend.config.Config
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.Home
 import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.theming.Theme
+import me.flamingo.pckd.frontend.utilities.ErrorHandler
 import org.jetbrains.compose.resources.painterResource
+import javax.swing.SwingUtilities
 
 object App {
     const val NAME = "pckd"
@@ -31,19 +33,20 @@ object App {
         Programs,
         Config
     )
-    
-    @JvmStatic
-    fun main(args: Array<String>) = application {
-        FileKit.init(NAME)
 
+    init {
+        Thread.setDefaultUncaughtExceptionHandler { _, e ->
+            SwingUtilities.invokeLater { ErrorHandler.report(e) }
+        }
+    }
+    
+    fun app() = application {
         Theme.initialize()
 
         configFiles.forEach {
             it.createDefaultIfNotExists()
         }
-
-        logger.info { Theme.density }
-
+        
         Window(
             title = NAME,
             onCloseRequest = ::exitApplication,
@@ -54,15 +57,23 @@ object App {
             CompositionLocalProvider(
                 LocalContextMenuRepresentation provides Theme.contextMenu,
                 LocalDensity provides Theme.density
-            ) { 
+            ) {
                 MaterialTheme(Theme.materialColors, Theme.typography, Theme.Shapes.shapes) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color    = MaterialTheme.colors.background,) {
+                        color    = MaterialTheme.colors.background
+                    ) {
                         key(screen) { screen.Content() }
+                        ErrorDialog()
                     }
                 }
             }
         }
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        FileKit.init(NAME)
+        app()
     }
 }

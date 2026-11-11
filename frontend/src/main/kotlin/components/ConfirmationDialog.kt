@@ -9,6 +9,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import me.flamingo.pckd.frontend.components.popup.Popup
+import me.flamingo.pckd.frontend.components.popup.PopupState
+import me.flamingo.pckd.frontend.components.popup.noDragPopup
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
 
@@ -28,25 +31,25 @@ fun ConfirmationDialog(
             confirm to onConfirm,
             cancel to onCancel,
         ).apply(otherActions)
-        
+
         Column(
             Modifier
                 .padding(10.dp)
-                .width(IntrinsicSize.Max), 
+                .width(IntrinsicSize.Max),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             if (title != null) {
-                Text(title, textAlign = TextAlign.Center)
+                Text(title, Modifier.noDragPopup(), textAlign = TextAlign.Center)
                 Spacer(Modifier.height(15.dp))
             }
-            Text(message, textAlign = TextAlign.Center)
-            
+            Text(message, Modifier.noDragPopup(), textAlign = TextAlign.Center)
+
             Spacer(Modifier.height(25.dp))
-            
+
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                
+
                 actions.forEach { action ->
-                    val colors = if(action.key == confirm) ButtonDefaults.buttonColors() 
+                    val colors = if (action.key == confirm) ButtonDefaults.buttonColors()
                     else ButtonDefaults.buttonColors(
                         backgroundColor = Mocha.surface0
                     )
@@ -55,11 +58,12 @@ fun ConfirmationDialog(
                         onClick = {
                             action.value()
                             it.hide()
-                        }, 
+                        },
+                        modifier = Modifier.noDragPopup(),
                         colors = colors,
                         shape = Theme.Shapes.small,
-                    ) { 
-                        Text(action.key) 
+                    ) {
+                        Text(action.key)
                     }
                 }
             }

@@ -21,8 +21,19 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
     fun getDirectoryPath() = key.toPath(rootDirectory, info, addExtension = false)
 
     init { normalize() }
+    
+    companion object {
+        private val VALID_NAME = Regex("[a-z0-9._-]+")
+
+        fun isValidName(name: String) =
+            name.isNotBlank() && 
+            name != "." && name != ".." &&
+            VALID_NAME.matches(name)
+    }
 
     fun add(name: String): R? {
+        if(!isValidName(name)) return null
+        
         val original = (resources.firstOrNull { it.key == key }
             ?: info.resource(key, rootDirectory))
             .takeIf { it.getFile().exists() }

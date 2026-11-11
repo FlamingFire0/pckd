@@ -1,41 +1,25 @@
-package me.flamingo.pckd.frontend.components
+package me.flamingo.pckd.frontend.components.popup
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import me.flamingo.pckd.frontend.theming.Mocha
-import me.flamingo.pckd.frontend.utilities.roundToIntOffset
-
-fun clampedPositionProvider(desired: (anchor: IntRect) -> IntOffset) = object : PopupPositionProvider {
-    override fun calculatePosition(
-        anchorBounds: IntRect,
-        windowSize: IntSize,
-        layoutDirection: LayoutDirection,
-        popupContentSize: IntSize
-    ): IntOffset {
-        val d = desired(anchorBounds)
-        return IntOffset(
-            d.x.coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0)),
-            d.y.coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
-        )
-    }
-}
-
-fun clampedPositionProvider(offset: IntOffset) = clampedPositionProvider { it.topLeft + offset }
 
 @Composable
 fun Popup(
@@ -45,7 +29,10 @@ fun Popup(
     dismissOnClickOutside: Boolean = true,
     onKeyEvent: (KeyEvent) -> Boolean = { false },
     state: PopupState = remember { PopupState() },
-    positionProvider: PopupPositionProvider = remember(state.position) { clampedPositionProvider(state.position) },
+    positionProvider: PopupPositionProvider = remember(state.position, state.start, state.dragOffset) {
+        startPositionProvider(state.start ?: PopupStart.at(state.position), state.dragOffset)
+    },
+    draggable: Boolean = true,
     content: @Composable ColumnScope.(PopupState) -> Unit
 ): PopupState {
     if (!state.visible) return state
@@ -63,6 +50,7 @@ fun Popup(
         Column(
             modifier = Modifier
                 .width(IntrinsicSize.Max)
+                .height(IntrinsicSize.Max)
                 .widthIn(min = minWidth)
                 .shadow(8.dp, shape)
                 .clip(shape)
@@ -70,6 +58,7 @@ fun Popup(
                 .border(1.dp, Mocha.surface0, shape)
                 .padding(4.dp)
                 .then(modifier)
+                .then(if(draggable) Modifier.dragPopup(state) else Modifier)
                 .then(
                     if (!focusable) Modifier
                     else Modifier
@@ -89,20 +78,4 @@ fun Popup(
     }
 
     return state
-}
-
-class PopupState(
-    visible : Boolean = false,
-    position: IntOffset = IntOffset.Zero,
-) {
-    var visible  by mutableStateOf(visible)
-    var position by mutableStateOf(position)
-    
-    fun show() { visible = true  }
-    fun hide() { visible = false }
-    fun show(position: IntOffset) { this.position = position; show() }
-    
-    fun updatePositionFromEvent(event: PointerEvent) {
-        position = event.changes.first().position.roundToIntOffset()
-    }
 }

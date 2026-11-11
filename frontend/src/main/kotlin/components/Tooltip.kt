@@ -13,6 +13,8 @@ import androidx.compose.ui.window.PopupPositionProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.flamingo.pckd.frontend.components.popup.Popup
+import me.flamingo.pckd.frontend.components.popup.PopupState
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 

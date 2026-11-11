@@ -25,9 +25,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import me.flamingo.pckd.frontend.components.Popup
-import me.flamingo.pckd.frontend.components.PopupState
-import me.flamingo.pckd.frontend.components.clampedPositionProvider
+import me.flamingo.pckd.frontend.components.popup.Popup
+import me.flamingo.pckd.frontend.components.popup.PopupState
+import me.flamingo.pckd.frontend.components.popup.clampedPositionProvider
 import me.flamingo.pckd.frontend.theming.Mocha
 import kotlin.math.roundToInt
 

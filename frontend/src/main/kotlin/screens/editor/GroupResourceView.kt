@@ -28,11 +28,17 @@ import me.flamingo.pckd.backend.resources.ItemResource
 import me.flamingo.pckd.backend.resources.ModelResource
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.TextureResource
-import me.flamingo.pckd.frontend.components.*
+import me.flamingo.pckd.frontend.components.ConfirmationDialog
+import me.flamingo.pckd.frontend.components.Grouping
+import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.components.Tooltip
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
+import me.flamingo.pckd.frontend.components.popup.Popup
+import me.flamingo.pckd.frontend.components.popup.noDragPopup
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
+import me.flamingo.pckd.frontend.utilities.ErrorHandler
 import me.flamingo.pckd.frontend.utilities.ObservableList
 import me.flamingo.pckd.frontend.utilities.platform.openInFileManager
 import java.nio.file.Path
@@ -157,7 +163,7 @@ object GroupResourceView {
                         """.trimIndent(),
                         "Delete $name"
                     ) {
-                        error("meow")
+                        ErrorHandler.error("meow")
                     }
                     
                     ContextMenu(
@@ -185,18 +191,18 @@ object GroupResourceView {
                     additionalResourceContent(it)
                 }
                 
-                val creationPopup = Popup(Modifier.padding(10.dp)) {
-                    var text by remember { mutableStateOf(if(resourceSlot.isEmpty()) resourceSlot.key.getLeaf() else "") }
-                    
+                val creationPopup = Popup(Modifier.padding(10.dp), draggable = true) {
+                    var text by remember { mutableStateOf(if (resourceSlot.isEmpty()) resourceSlot.key.getLeaf() else "") }
+
                     fun add() {
                         it.visible = false
                         resourceSlot.add(text)
                         resources.invalidate()
                     }
-                    
+
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("New $name")
-                        
+                        Text("New $name", Modifier.noDragPopup())
+
                         Spacer(Modifier.height(10.dp))
 
                         OutlinedTextField(
@@ -207,10 +213,14 @@ object GroupResourceView {
                             shape = RoundedCornerShape(6.dp),
                             textStyle = TextStyle(fontSize = 14.sp, fontFamily = Theme.fontFamily),
                             colors = Theme.textFieldColors(Mocha.green),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().noDragPopup(),
                             trailingIcon = {
                                 IconButton(onClick = { text = "" }) {
-                                    Icon(imageVector = Icons.Rounded.Close, contentDescription = "Clear", tint = Mocha.overlay2)
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = "Clear",
+                                        tint = Mocha.overlay2
+                                    )
                                 }
                             },
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -222,8 +232,9 @@ object GroupResourceView {
                         Spacer(Modifier.height(10.dp))
 
                         Button(
-                            ::add, 
-                            shape = Theme.Shapes.small, 
+                            ::add,
+                            Modifier.noDragPopup(),
+                            shape = Theme.Shapes.small,
                             colors = ButtonDefaults.textButtonColors(Mocha.green, Mocha.crust)
                         ) {
                             Text("Create")
