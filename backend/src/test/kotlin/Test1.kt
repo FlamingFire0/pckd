@@ -1,12 +1,8 @@
 package me.flamingo.pckd.backend
 
-import me.flamingo.pckd.backend.key.Key
-import me.flamingo.pckd.common.logger
-import org.junit.jupiter.api.Test
-
 class Test1 {
     
-    val inferno = RootDirectory("/home/flamingo/projects/minecraft/inferno/resourcepacks/resourcepacks/main/")
+    /*val inferno = RootDirectory("/home/flamingo/projects/minecraft/inferno/resourcepacks/resourcepacks/main/")
     val minecraft = RootDirectory("/home/flamingo/projects/minecraft/devtools/packed/backend/src/test/resources/test")
     
     @Test
@@ -23,7 +19,7 @@ class Test1 {
     
     @Test
     fun test3() {
-        val groups = inferno.groups.value.groups.map { ResourceGroup(inferno, it) }
+        val groups = inferno.groups.map { ResourceGroup(inferno, it) }
         groups.forEach { logger.info { it } }
-    }
+    }*/
 }

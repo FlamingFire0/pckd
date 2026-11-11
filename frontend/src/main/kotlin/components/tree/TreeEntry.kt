@@ -28,9 +28,10 @@ class TreeEntry(
     val name: String,
     val key: Key,
     override var parent: TreeGroup?,
+    selected: Boolean = false,
     val onClick: (TreeEntry) -> Unit = {}, 
 ) : TreeElement {
-    var isSelected by mutableStateOf(false)
+    var isSelected by mutableStateOf(selected)
 
     override fun name(): String = name
 

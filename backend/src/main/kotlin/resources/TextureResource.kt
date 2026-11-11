@@ -22,8 +22,8 @@ class TextureResource(
     }
     
     
-    fun openMeta()     = Programs.File.value.textProgram.run(getMeta().path, rootDirectory)
-    fun openAseprite() = Programs.File.value.imageProgram.run(getAseprite().path, rootDirectory)
+    fun openMeta()     = Programs.value.textProgram.run(getMeta().path, rootDirectory)
+    fun openAseprite() = Programs.value.asepriteProgram.run(getAseprite().path, rootDirectory)
 
 
     override fun createIfNotExists(): Boolean {
@@ -38,7 +38,7 @@ class TextureResource(
         return true
     }
     
-    override fun open() = Programs.File.value.imageProgram.run(this)
+    override fun open() = Programs.value.imageProgram.run(this)
 
     override fun moveTo(newKey: Key): Path? {
         val destination = super.moveTo(newKey) ?: return null

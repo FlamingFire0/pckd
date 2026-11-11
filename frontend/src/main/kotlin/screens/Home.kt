@@ -23,6 +23,7 @@ import me.flamingo.pckd.common.Directories
 import me.flamingo.pckd.frontend.components.Grouping
 import me.flamingo.pckd.frontend.components.RowButton
 import me.flamingo.pckd.frontend.components.SmallButton
+import me.flamingo.pckd.frontend.components.Tooltip
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.resources.Res
@@ -84,29 +85,30 @@ object Home : Screen() {
                     Spacer(Modifier.height(10.dp))
 
                     Grouping {
-                        history.forEach {
-
+                        history.forEach { entry ->
                             ContextMenu(
                                 items = listOf(
                                     ContextAction("Open Directory") {
-                                        it.openInFileManager()
+                                        entry.openInFileManager()
                                     },
                                     ContextAction("Copy Path") {
-                                        copyToClipboard(it.toString())
+                                        copyToClipboard(entry.toString())
                                     },
                                     ContextAction("Remove") {
-                                        history.remove(it)
+                                        history.remove(entry)
                                         History.File.save()
                                     }
                                 )
 
                             ) {
-                                RowButton(onClick = { selectDirectory(it) }) {
-                                    Text(
-                                        it.minify(),
-                                        fontSize = 18.sp,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
-                                    )
+                                Tooltip(entry.toString()) {
+                                    RowButton(onClick = { selectDirectory(entry) }) {
+                                        Text(
+                                            entry.minify(),
+                                            fontSize = 18.sp,
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -123,19 +125,21 @@ object Home : Screen() {
                     }
                 )
 
-                Button(onClick = { directoryPicker.launch() }) {
+                Button({ directoryPicker.launch() }, shape = Theme.Shapes.medium) {
                     Text("Open Resource Pack")
                 }
             }
 
-            SmallButton(
-                onClick = { 
-                    Directories.config.path.openInFileManager() 
-                },
-                Modifier.align(Alignment.BottomEnd).padding(12.dp).size(50.dp).aspectRatio(1f),
-                backgroundColor = Mocha.base,
-            ) {
-                Icon(Icons.Rounded.Settings, "Settings", Modifier.size(30.dp))
+            Tooltip("Settings", Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
+                SmallButton(
+                    onClick = {
+                        Directories.config.path.openInFileManager()
+                    },
+                    Modifier.size(50.dp).aspectRatio(1f),
+                    backgroundColor = Mocha.base,
+                ) {
+                    Icon(Icons.Rounded.Settings, "Settings", Modifier.size(30.dp))
+                }
             }
         }
     }

@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.desktop)
     alias(libs.plugins.hot.reload)
+    alias(libs.plugins.serialization)
 }
 
 val qualifier = "me.flamingo"

@@ -14,8 +14,8 @@ open class Program(
     val arguments: List<String> = listOf("{path}")
 ) {
     override fun toString(): String = file.toString()
-    
-    open fun run(path: Path, rootDirectory: RootDirectory) {
+
+    open fun run(path: Path, rootDirectory: RootDirectory?) {
         val arguments = arguments.map { argument ->
             Placeholder.applyAll(argument) {
                 it.path = path
@@ -29,7 +29,7 @@ open class Program(
     fun run(resource: Resource<*, *>) = run(resource.getFile().path, resource.rootDirectory)
     
     object DEFAULT : Program(Path.of(""), emptyList()) {
-        override fun run(path: Path, rootDirectory: RootDirectory) {
+        override fun run(path: Path, rootDirectory: RootDirectory?) {
             Desktop.getDesktop().open(path.toFile())
         }
     }

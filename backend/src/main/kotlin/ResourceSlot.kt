@@ -18,7 +18,6 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
     fun isSingle  () = !isMultiple()
     fun isEmpty   () = resources.none { it.getFile().exists() }
 
-    fun getLeaf() = key.value.substringAfterLast('/')
     fun getDirectoryPath() = key.toPath(rootDirectory, info, addExtension = false)
 
     init { normalize() }
@@ -28,7 +27,7 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
             ?: info.resource(key, rootDirectory))
             .takeIf { it.getFile().exists() }
 
-        val leaf = getLeaf()
+        val leaf = key.getLeaf()
         
         val target = 
             if (original == null && isEmpty() && name == leaf) key 
@@ -65,18 +64,27 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
         normalize()
     }
 
+    private fun deleteDirectoryIfEmpty() {
+        val directory = getDirectoryPath()
+
+        if (directory.isDirectory() && directory.listDirectoryEntries().isEmpty()) {
+            runCatching { directory.deleteExisting() }
+        }
+    }
+
     private fun normalize() {
         val existing = resources.filter { it.getFile().exists() }
 
-        if(resources.isEmpty()) {
-            val path = key.toPath(rootDirectory, info, addExtension = false).isDirectory()
+        if (existing.isEmpty()) {
+            deleteDirectoryIfEmpty()
+            return
         }
 
         val original = existing.firstOrNull { it.key == key }
         val children = existing.filter { it.key != key }
 
         if (original != null && children.isNotEmpty()) {
-            val target = key.resolve(getLeaf())
+            val target = key.resolve(key.getLeaf())
 
             require(children.none { it.key == target }) {
                 "$target already exists"
@@ -93,12 +101,7 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
         if (key.toPath(rootDirectory, info).exists()) return
 
         only.moveTo(key)
-        
-        val directory = getDirectoryPath()
-        if(directory.isDirectory()) {
-            if(directory.listDirectoryEntries().isEmpty()) {
-                runCatching { directory.deleteExisting() }
-            }
-        }
+
+        deleteDirectoryIfEmpty()
     }
 }

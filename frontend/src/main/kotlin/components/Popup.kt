@@ -39,24 +39,26 @@ fun clampedPositionProvider(offset: IntOffset) = clampedPositionProvider { it.to
 
 @Composable
 fun Popup(
-    state: PopupState = remember { PopupState() },
     modifier: Modifier = Modifier,
     minWidth: Dp = 180.dp,
-    positionProvider: PopupPositionProvider = remember(state.position) { clampedPositionProvider(state.position) },
+    focusable: Boolean = true,
+    dismissOnClickOutside: Boolean = true,
     onKeyEvent: (KeyEvent) -> Boolean = { false },
+    state: PopupState = remember { PopupState() },
+    positionProvider: PopupPositionProvider = remember(state.position) { clampedPositionProvider(state.position) },
     content: @Composable ColumnScope.(PopupState) -> Unit
-) {
-    if (!state.visible) return
-    
+): PopupState {
+    if (!state.visible) return state
+
     val focusRequester = remember { FocusRequester() }
     val shape = RoundedCornerShape(8.dp)
 
     Popup(
         popupPositionProvider = positionProvider,
         onDismissRequest = state::hide,
-        properties = PopupProperties(focusable = true, dismissOnClickOutside = true)
+        properties = PopupProperties(focusable = focusable, dismissOnClickOutside = dismissOnClickOutside)
     ) {
-        LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
+        if (focusable) LaunchedEffect(focusRequester) { focusRequester.requestFocus() }
 
         Column(
             modifier = Modifier
@@ -68,19 +70,25 @@ fun Popup(
                 .border(1.dp, Mocha.surface0, shape)
                 .padding(4.dp)
                 .then(modifier)
-                .focusRequester(focusRequester)
-                .onPreviewKeyEvent { event ->
-                    when {
-                        event.type != KeyEventType.KeyDown -> false
-                        onKeyEvent(event) -> true
-                        event.key == Key.Escape -> { state.hide(); true }
-                        else -> false
-                    }
-                }
-                .focusable(),
+                .then(
+                    if (!focusable) Modifier
+                    else Modifier
+                        .focusRequester(focusRequester)
+                        .onPreviewKeyEvent { event ->
+                            when {
+                                event.type != KeyEventType.KeyDown -> false
+                                onKeyEvent(event) -> true
+                                event.key == Key.Escape -> { state.hide(); true }
+                                else -> false
+                            }
+                        }
+                        .focusable()
+                ),
             content = { content(state) }
         )
     }
+
+    return state
 }
 
 class PopupState(

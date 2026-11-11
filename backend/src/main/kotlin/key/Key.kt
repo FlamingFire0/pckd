@@ -52,6 +52,8 @@ data class Key(
         root.assets / namespace / resource.directory / value.run {
             if(addExtension) (this + ".${resource.extension}") else this
         }
+
+    fun getLeaf() = value.substringAfterLast('/')
     
     override fun toString(): String = toString(false)
     fun toString(short: Boolean) = if(short) value.substringAfterLast("/") else "$namespace:$value"

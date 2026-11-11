@@ -1,7 +1,7 @@
 package me.flamingo.pckd.backend
 
-import me.flamingo.pckd.backend.config.ConfigFile
-import me.flamingo.pckd.backend.config.Groups
+import me.flamingo.pckd.backend.config.ConfigFile.Companion.configFile
+import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.common.filesystem.Directory
 import me.flamingo.pckd.common.filesystem.File
 import java.nio.file.Path
@@ -14,7 +14,11 @@ class RootDirectory(path: Path): Directory(path) {
     val meta   = File     (path / "pack.mcmeta")
     val icon   = File     (path / "pack.png"   )
     
-    val groups = ConfigFile(pckd / "groups.json", Groups::serializer, ::Groups)
+    val groupsConfig = configFile<MutableSet<Key>>(
+        pckd / "groups.json",
+    ) { mutableSetOf() }
+
+    val groups get() = groupsConfig()
     
     fun isValid() : Boolean = meta.exists()
 }

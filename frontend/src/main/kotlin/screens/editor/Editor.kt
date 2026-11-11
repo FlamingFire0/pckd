@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.backend.ResourceGroup
 import me.flamingo.pckd.backend.RootDirectory
-import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.frontend.components.*
 import me.flamingo.pckd.frontend.components.tree.TreeEntry
@@ -29,20 +28,22 @@ import me.flamingo.pckd.frontend.theming.Theme
 import me.flamingo.pckd.frontend.utilities.ObservableList
 import kotlin.io.path.name
 
-class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
+class Editor(
+    val rootDirectory: RootDirectory,
+    selected: Key? = null
+) : Screen(Home) {
     
     companion object {
         private val paneState = PanesState(350.dp)
     }
     
-    var selected: Key? by mutableStateOf(null)
-    val keys = ObservableList(rootDirectory.groups.value.groups)
+    val keys = ObservableList(rootDirectory.groups)
+    var selected: Key? by mutableStateOf(selected.takeIf { it in keys })
     
     val treeRoot: TreeGroup = TreeGroup(rootDirectory.path.name, mergeable = false)
     
     fun reload() {
-        val newEditor = Editor(RootDirectory(rootDirectory.path))
-        newEditor.selected = selected
+        val newEditor = Editor(RootDirectory(rootDirectory.path), selected)
         newEditor.open()
     }
     
@@ -71,7 +72,7 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
         }
         Spacer(Modifier.width(7.dp))
         Button("Groups (JSON)", Icons.Rounded.DataObject) { 
-            Programs.File.value.textProgram.run(rootDirectory.groups.path, rootDirectory) 
+            rootDirectory.groupsConfig.open(rootDirectory)
         }
     }
     
@@ -88,14 +89,14 @@ class Editor(val rootDirectory: RootDirectory) : Screen(Home) {
     
     @Composable
     fun SelectorPane() = Pane {
-        var selectedEntry by remember { mutableStateOf<TreeEntry?>(null) }
+        val selectedEntry = remember { mutableStateOf<TreeEntry?>(null) }
         
         if(treeRoot.children.isEmpty())
             treeRoot.children.addAll(
-                keys.toTree {
-                    selectedEntry?.isSelected = false
+                keys.toTree(selected, selectedEntry) {
+                    selectedEntry.value?.isSelected = false
                     isSelected = true
-                    selectedEntry = this
+                    selectedEntry.value = this
                     selected = it
                 },
             )

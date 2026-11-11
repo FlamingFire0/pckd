@@ -5,11 +5,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import me.flamingo.pckd.frontend.utilities.platform.isX11
+import me.flamingo.pckd.frontend.config.config
 
 object Theme {
     var fontFamily: FontFamily = FontFamily.Monospace
@@ -21,7 +20,7 @@ object Theme {
     lateinit var textFieldColors: TextFieldColors
         private set
 
-    var density = Density(1f)
+    val density = Density(config.scale)
     
     object Shapes {
         val tiny    = RoundedCornerShape( 2.dp)
@@ -70,9 +69,6 @@ object Theme {
         fontFamily      = jetbrainsMono()
         typography      = Typography(fontFamily)
         textFieldColors = textFieldColors()
-        density = when {
-            isX11 -> Density(1.25f)
-            else  -> LocalDensity.current
-        }
+        
     }
 }
