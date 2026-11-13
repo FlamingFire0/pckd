@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.components.popup
+package me.flamingo.pckd.frontend.components.popup.position_providers
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect

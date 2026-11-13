@@ -1,20 +1,55 @@
 package me.flamingo.pckd.frontend.screens
 
 import androidx.compose.runtime.Composable
-import me.flamingo.pckd.frontend.App
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 
-abstract class Screen(
-    val previous: Screen? = null
-) {
+interface Screen {
+    
     @Composable
-    abstract fun Content()
+    fun Content()
 
-    fun previous() = previous?.open()
-    
-    fun open(): Screen {
-        App.screen = this
-        return this
+    companion object {
+        val defaultScreen = Home
+        
+        private class ScreenEntry(val screen: Screen)
+        
+        private val screenStack = mutableStateListOf(ScreenEntry(defaultScreen))
+        private val currentEntry: ScreenEntry get() = screenStack.last()
+
+        private val popped = mutableListOf<ScreenEntry>()
+
+        val current: Screen get() = currentEntry.screen
+        
+        fun open(screen: Screen) {
+            screenStack.add(ScreenEntry(screen))
+        }
+        
+        fun back(): Boolean {
+            if (screenStack.size <= 1) return false
+            popped += screenStack.removeLast()
+            return true
+        }
+        
+        fun replace(screen: Screen) {
+            back()
+            open(screen)
+        }
+        
+        @Composable
+        fun Render() {
+            val holder = rememberSaveableStateHolder()
+            val screenEntry = currentEntry
+            
+            holder.SaveableStateProvider(screenEntry) {
+                screenEntry.screen.Content()
+            }
+
+            SideEffect {
+                popped.forEach { holder.removeState(it) }
+                popped.clear()
+            }
+        }
     }
-    
-    fun next(block: (Screen) -> Screen) = block(this).open()
 }

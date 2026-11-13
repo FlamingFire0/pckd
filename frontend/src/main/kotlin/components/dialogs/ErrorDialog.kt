@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.components
+package me.flamingo.pckd.frontend.components.dialogs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import me.flamingo.pckd.frontend.components.popup.Popup
 import me.flamingo.pckd.frontend.components.popup.PopupStart
 import me.flamingo.pckd.frontend.components.popup.PopupState
+import me.flamingo.pckd.frontend.components.popup.PopupState.Companion.LocalPopupState
 import me.flamingo.pckd.frontend.components.popup.noDragPopup
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
@@ -36,7 +37,9 @@ fun ErrorDialog() {
     Popup(
         state = state,
         minWidth = 300.dp,
-    ) { popup ->
+    ) {
+        val state = requireNotNull(LocalPopupState.current)
+        
         Column(
             Modifier.padding(10.dp).align(Alignment.CenterHorizontally),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -49,7 +52,7 @@ fun ErrorDialog() {
             Spacer(Modifier.height(20.dp))
 
             Row(horizontalArrangement = Arrangement.SpaceAround) {
-                Button({ popup.hide() }, Modifier.noDragPopup(), shape = Theme.Shapes.small) { Text("OK") }
+                Button({ state.hide() }, Modifier.noDragPopup(), shape = Theme.Shapes.small) { Text("OK") }
 
                 Spacer(Modifier.width(20.dp))
 

@@ -6,6 +6,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,12 +21,13 @@ import io.github.vinceglb.filekit.path
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.History
 import me.flamingo.pckd.common.Directories
+import me.flamingo.pckd.frontend.App
 import me.flamingo.pckd.frontend.components.Grouping
 import me.flamingo.pckd.frontend.components.RowButton
 import me.flamingo.pckd.frontend.components.SmallButton
-import me.flamingo.pckd.frontend.components.Tooltip
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
+import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.editor.Editor
@@ -35,10 +37,11 @@ import me.flamingo.pckd.frontend.utilities.ObservableList
 import me.flamingo.pckd.frontend.utilities.minify
 import me.flamingo.pckd.frontend.utilities.platform.copyToClipboard
 import me.flamingo.pckd.frontend.utilities.platform.openInFileManager
+import me.flamingo.pckd.frontend.utilities.shorten
 import org.jetbrains.compose.resources.painterResource
 import java.nio.file.Path
 
-object Home : Screen() {
+object Home : Screen {
     
     fun selectDirectory(path: Path) {
         val root = RootDirectory(path)
@@ -47,8 +50,8 @@ object Home : Screen() {
         History.File.value.history.remove(path)
         History.File.value.history.addFirst(path)
         History.File.save()
-        
-        next { Editor(root) }
+
+        Screen.open(Editor(root))
     }
     
     @Composable
@@ -101,7 +104,7 @@ object Home : Screen() {
                                 )
 
                             ) {
-                                Tooltip(entry.toString()) {
+                                Tooltip(entry.shorten()) {
                                     RowButton(onClick = { selectDirectory(entry) }) {
                                         Text(
                                             entry.minify(),
@@ -129,16 +132,33 @@ object Home : Screen() {
                     Text("Open Resource Pack")
                 }
             }
+            
+            Column(Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
 
-            Tooltip("Settings", Modifier.align(Alignment.BottomEnd).padding(12.dp)) {
-                SmallButton(
-                    onClick = {
-                        Directories.config.path.openInFileManager()
-                    },
-                    Modifier.size(50.dp).aspectRatio(1f),
-                    backgroundColor = Mocha.base,
-                ) {
-                    Icon(Icons.Rounded.Settings, "Settings", Modifier.size(30.dp))
+                Tooltip("Reload") {
+                    SmallButton(
+                        onClick = {
+                            App.configFiles.forEach { config -> config.reload() }
+                        },
+                        Modifier.size(50.dp).aspectRatio(1f),
+                        backgroundColor = Mocha.base,
+                    ) {
+                        Icon(Icons.Rounded.Refresh, it, Modifier.size(30.dp))
+                    }
+                }
+                
+                Spacer(Modifier.height(10.dp))
+                
+                Tooltip("Settings") {
+                    SmallButton(
+                        onClick = {
+                            Directories.config.path.openInFileManager()
+                        },
+                        Modifier.size(50.dp).aspectRatio(1f),
+                        backgroundColor = Mocha.base,
+                    ) {
+                        Icon(Icons.Rounded.Settings, it, Modifier.size(30.dp))
+                    }
                 }
             }
         }

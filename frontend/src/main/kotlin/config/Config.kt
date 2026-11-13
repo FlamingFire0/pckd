@@ -6,7 +6,7 @@ import me.flamingo.pckd.common.Directories
 
 @Serializable
 class Config private constructor(
-    val scale: Float = 1f
+    val scale: Float? = null
 ) {
     companion object File : ConfigFile<Config>(
         Directories.config / "config.json",
@@ -14,5 +14,3 @@ class Config private constructor(
         ::Config
     )
 }
-
-val config: Config get() = Config()

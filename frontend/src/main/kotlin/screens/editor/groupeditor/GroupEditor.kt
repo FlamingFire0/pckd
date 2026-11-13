@@ -21,7 +21,7 @@ import me.flamingo.pckd.frontend.screens.editor.Editor
 import me.flamingo.pckd.frontend.theming.Mocha
 import kotlin.io.path.name
 
-class GroupEditor(val editor: Editor) : Screen(editor) {
+class GroupEditor(val editor: Editor) : Screen {
     
     companion object {
         private val paneState = PanesState()
@@ -31,7 +31,7 @@ class GroupEditor(val editor: Editor) : Screen(editor) {
     
     @Composable
     fun TopBar() = Row {
-        IconButton(onClick = ::previous) {
+        IconButton(onClick = Screen::back) {
             Icon(imageVector = Icons.Rounded.KeyboardDoubleArrowLeft, contentDescription = "Back")
         }
     }

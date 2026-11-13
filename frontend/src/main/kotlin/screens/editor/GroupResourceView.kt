@@ -28,13 +28,14 @@ import me.flamingo.pckd.backend.resources.ItemResource
 import me.flamingo.pckd.backend.resources.ModelResource
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.TextureResource
-import me.flamingo.pckd.frontend.components.ConfirmationDialog
+import me.flamingo.pckd.frontend.components.dialogs.ConfirmationDialog
 import me.flamingo.pckd.frontend.components.Grouping
 import me.flamingo.pckd.frontend.components.RowButton
-import me.flamingo.pckd.frontend.components.Tooltip
+import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.components.popup.Popup
+import me.flamingo.pckd.frontend.components.popup.PopupState.Companion.LocalPopupState
 import me.flamingo.pckd.frontend.components.popup.noDragPopup
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
@@ -192,10 +193,12 @@ object GroupResourceView {
                 }
                 
                 val creationPopup = Popup(Modifier.padding(10.dp), draggable = true) {
+                    val state = requireNotNull(LocalPopupState.current)
+                    
                     var text by remember { mutableStateOf(if (resourceSlot.isEmpty()) resourceSlot.key.getLeaf() else "") }
 
                     fun add() {
-                        it.visible = false
+                        state.visible = false
                         resourceSlot.add(text)
                         resources.invalidate()
                     }

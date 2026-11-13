@@ -16,11 +16,14 @@ import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.backend.ResourceGroup
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.key.Key
-import me.flamingo.pckd.frontend.components.*
+import me.flamingo.pckd.frontend.components.Panes
+import me.flamingo.pckd.frontend.components.PanesState
+import me.flamingo.pckd.frontend.components.ScrollPane
+import me.flamingo.pckd.frontend.components.SmallButton
+import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.components.tree.TreeEntry
 import me.flamingo.pckd.frontend.components.tree.TreeGroup
 import me.flamingo.pckd.frontend.components.tree.toTree
-import me.flamingo.pckd.frontend.screens.Home
 import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.screens.editor.groupeditor.GroupEditor
 import me.flamingo.pckd.frontend.theming.Mocha
@@ -31,7 +34,7 @@ import kotlin.io.path.name
 class Editor(
     val rootDirectory: RootDirectory,
     selected: Key? = null
-) : Screen(Home) {
+) : Screen {
     
     companion object {
         private val paneState = PanesState(350.dp)
@@ -44,7 +47,7 @@ class Editor(
     
     fun reload() {
         val newEditor = Editor(RootDirectory(rootDirectory.path), selected)
-        newEditor.open()
+        Screen.replace(newEditor)
     }
     
     @Composable
@@ -54,7 +57,7 @@ class Editor(
         fun Button(name: String, icon: ImageVector, onClick: () -> Unit) {
             Tooltip(name) {
                 SmallButton(
-                    onClick, 
+                    onClick,
                     Modifier.size(40.dp).aspectRatio(1f),
                 ) {
                     Icon(icon, it, Modifier.size(25.dp))
@@ -63,12 +66,12 @@ class Editor(
         }
 
         Spacer(Modifier.width(5.dp))
-        Button("Back", Icons.Rounded.KeyboardDoubleArrowLeft, ::previous)
+        Button("Back", Icons.Rounded.KeyboardDoubleArrowLeft, Screen::back)
         Spacer(Modifier.width(7.dp))
         Button("Reload", Icons.Rounded.Refresh, ::reload)
         Spacer(Modifier.width(7.dp))
         Button("Modify Groups", Icons.Rounded.Edit) { 
-            next { GroupEditor(this@Editor) } 
+            Screen.open(GroupEditor(this@Editor))
         }
         Spacer(Modifier.width(7.dp))
         Button("Groups (JSON)", Icons.Rounded.DataObject) { 

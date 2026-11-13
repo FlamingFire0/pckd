@@ -1,4 +1,4 @@
-package me.flamingo.pckd.frontend.components
+package me.flamingo.pckd.frontend.components.dialogs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -11,6 +11,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.frontend.components.popup.Popup
 import me.flamingo.pckd.frontend.components.popup.PopupState
+import me.flamingo.pckd.frontend.components.popup.PopupState.Companion.LocalPopupState
 import me.flamingo.pckd.frontend.components.popup.noDragPopup
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
@@ -27,6 +28,8 @@ fun ConfirmationDialog(
     val cancel = "Cancel"
     
     return Popup {
+        val state = requireNotNull(LocalPopupState.current)
+        
         val actions = mutableMapOf(
             confirm to onConfirm,
             cancel to onCancel,
@@ -57,7 +60,7 @@ fun ConfirmationDialog(
                     Button(
                         onClick = {
                             action.value()
-                            it.hide()
+                            state.hide()
                         },
                         modifier = Modifier.noDragPopup(),
                         colors = colors,

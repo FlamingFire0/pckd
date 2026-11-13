@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.flamingo.pckd.frontend.components.popup.Popup
 import me.flamingo.pckd.frontend.components.popup.PopupState
-import me.flamingo.pckd.frontend.components.popup.clampedPositionProvider
+import me.flamingo.pckd.frontend.components.popup.position_providers.ClampedPositionProvider
 import me.flamingo.pckd.frontend.theming.Mocha
 import kotlin.math.roundToInt
 
@@ -89,8 +89,8 @@ fun ContextMenu(
     }
 
     val positionProvider = remember(openedByKeyboard) {
-        if (openedByKeyboard) clampedPositionProvider { IntOffset(it.left, it.bottom) }
-        else clampedPositionProvider(popupState.position)
+        if (openedByKeyboard) ClampedPositionProvider { IntOffset(it.left, it.bottom) }
+        else ClampedPositionProvider(popupState.position)
     }
 
     Box(

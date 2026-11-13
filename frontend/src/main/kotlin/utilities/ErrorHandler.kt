@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import me.flamingo.pckd.common.logger
 import me.flamingo.pckd.frontend.screens.Home
+import me.flamingo.pckd.frontend.screens.Screen
 import javax.swing.SwingUtilities
 
 object ErrorHandler {
@@ -15,7 +16,7 @@ object ErrorHandler {
         logger.error { "Unhandled exception: ${throwable.stackTraceToString()}" }
 
         SwingUtilities.invokeLater {
-            Home.open()
+            Screen.open(Home)
             error = throwable
         }
     }
