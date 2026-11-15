@@ -18,6 +18,7 @@ import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.theming.Theme
 import me.flamingo.pckd.frontend.utilities.ErrorHandler
 import org.jetbrains.compose.resources.painterResource
+import java.awt.Dimension
 import javax.swing.SwingUtilities
 
 object App {
@@ -33,7 +34,7 @@ object App {
             SwingUtilities.invokeLater { ErrorHandler.report(e) }
         }
     }
-    
+
     @Composable
     fun ApplicationScope.App() {
         Window(
@@ -41,6 +42,8 @@ object App {
             onCloseRequest = ::exitApplication,
             icon = painterResource(Res.drawable.pckd)
         ) {
+            window.minimumSize = Dimension(500, 350)
+            
             Theme.Provider {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

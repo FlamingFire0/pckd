@@ -12,7 +12,6 @@ import me.flamingo.pckd.common.filesystem.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
-import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 open class ConfigFile<T: Any>(
@@ -30,7 +29,7 @@ open class ConfigFile<T: Any>(
     operator fun invoke(): T = value
     
     fun load(): T =
-        if (isNotEmpty()) json.decodeFromString(serializer, path.readText())
+        if (isNotEmpty()) json.decodeFromString(serializer, readText())
         else default().also(::write)
 
     fun reload(): T = synchronized(lock) {
@@ -50,7 +49,7 @@ open class ConfigFile<T: Any>(
 
     private fun write(value: T) {
         ensure()
-        val tmp = path.resolveSibling(path.fileName.toString() + ".tmp")
+        val tmp = resolveSibling("$fileName.tmp")
         tmp.writeText(json.encodeToString(serializer, value))
         Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)
     }

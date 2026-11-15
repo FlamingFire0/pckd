@@ -9,21 +9,26 @@ abstract class ResourceInfo<S: ResourceInfo<S, R>,R: Resource<R, S>>(
     val extension: String,
     val resource : (Key, RootDirectory) -> R
 ) {
-    fun gather(root: RootDirectory, key: Key): List<R> {
+    fun gather(
+        root: RootDirectory, 
+        baseKey: Key,
+        key: Key = normalize(baseKey)
+    ): List<R> {
         val filePath      = key.toPath(root, this)
         val directoryPath = key.toPath(root, this, false)
         
         return buildList {
             if (filePath.isRegularFile()) {
-                add(resource(key, root))
+                add(resource(baseKey, root))
             }
 
             if (directoryPath.isDirectory()) {
                 directoryPath.listDirectoryEntries()
                     .filter { it.isRegularFile() && it.extension == extension }
-                    .map { resource(key.resolve(it.nameWithoutExtension), root) }
+                    .map { resource(baseKey.resolve(it.nameWithoutExtension), root) }
                     .forEach(::add)
             }
+
         }
     }
 

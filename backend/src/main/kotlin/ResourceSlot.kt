@@ -3,15 +3,18 @@ package me.flamingo.pckd.backend
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.ResourceInfo
-import kotlin.io.path.*
+import kotlin.io.path.deleteExisting
+import kotlin.io.path.exists
+import kotlin.io.path.isDirectory
+import kotlin.io.path.listDirectoryEntries
 
 class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
-    baseKey: Key,
+    val baseKey: Key,
     val rootDirectory: RootDirectory,
     val info: I,
 ) {
     val key: Key = info.normalize(baseKey)
-    val resources: MutableList<R> = info.gather(rootDirectory, key).toMutableList()
+    val resources: MutableList<R> = info.gather(rootDirectory, baseKey, key).toMutableList()
     
 
     fun isMultiple() = resources.any { it.key != key && it.getFile().exists() }
@@ -35,14 +38,14 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
         if(!isValidName(name)) return null
         
         val original = (resources.firstOrNull { it.key == key }
-            ?: info.resource(key, rootDirectory))
+            ?: info.resource(baseKey, rootDirectory))
             .takeIf { it.getFile().exists() }
 
         val leaf = key.getLeaf()
         
         val target = 
-            if (original == null && isEmpty() && name == leaf) key 
-            else key.resolve(name)
+            if (original == null && isEmpty() && name == leaf) baseKey 
+            else baseKey.resolve(name)
                 
         val resource = info.resource(target, rootDirectory)
         
@@ -70,7 +73,7 @@ class ResourceSlot<R : Resource<R, I>, I : ResourceInfo<I, R>>(
     }
 
     fun remove(resource: R) {
-        resource.getFile().path.deleteIfExists()   // textures: also delete meta/aseprite
+        resource.getFile().deleteIfExists()   // textures: also delete meta/aseprite
         resources -= resource
         normalize()
     }

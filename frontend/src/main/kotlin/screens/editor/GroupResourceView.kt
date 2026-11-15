@@ -28,15 +28,15 @@ import me.flamingo.pckd.backend.resources.ItemResource
 import me.flamingo.pckd.backend.resources.ModelResource
 import me.flamingo.pckd.backend.resources.Resource
 import me.flamingo.pckd.backend.resources.TextureResource
-import me.flamingo.pckd.frontend.components.dialogs.ConfirmationDialog
 import me.flamingo.pckd.frontend.components.Grouping
 import me.flamingo.pckd.frontend.components.RowButton
-import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
+import me.flamingo.pckd.frontend.components.dialogs.ConfirmationDialog
 import me.flamingo.pckd.frontend.components.popup.Popup
 import me.flamingo.pckd.frontend.components.popup.PopupState.Companion.LocalPopupState
 import me.flamingo.pckd.frontend.components.popup.noDragPopup
+import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
 import me.flamingo.pckd.frontend.utilities.ErrorHandler
@@ -170,7 +170,7 @@ object GroupResourceView {
                     ContextMenu(
                         mutableListOf(
                             ContextAction("Open Parent Directory") {
-                                it.getFile().path.parent.openInFileManager()
+                                it.getFile().parent?.openInFileManager()
                             },
                             ContextAction("Delete") {
                                 deletionPopup.show()

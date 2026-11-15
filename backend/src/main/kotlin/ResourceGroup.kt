@@ -4,6 +4,8 @@ import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.backend.resources.ItemResource
 import me.flamingo.pckd.backend.resources.ModelResource
 import me.flamingo.pckd.backend.resources.TextureResource
+import kotlin.io.path.exists
+import kotlin.io.path.notExists
 
 class ResourceGroup(
     val root: RootDirectory,

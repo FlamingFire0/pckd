@@ -13,7 +13,7 @@ enum class Placeholder(
     Path  ("{path}"  , { it.path         } ),
     Parent("{parent}", { it.path?.parent } ),
     Name  ("{name}"  , { it.path?.name   } ),
-    Root  ("{root}"  , { it.root?.path   } ),
+    Root  ("{root}"  , { it.root         } ),
     Key   ("{key}"   , { it.key          } ),
     
     ;

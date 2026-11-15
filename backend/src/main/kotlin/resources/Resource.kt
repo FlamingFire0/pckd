@@ -9,7 +9,6 @@ import me.flamingo.pckd.common.logger
 import java.nio.file.Path
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
-import kotlin.io.path.moveTo
 
 abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     key: Key,
@@ -31,7 +30,7 @@ abstract class Resource<S: Resource<S, I>, I: ResourceInfo<I, S>>(
     open fun moveTo(newKey: Key): Path? {
         val newKey = info.normalize(newKey)
         
-        val current = getFile().path
+        val current = getFile()
         val destination = newKey.toPath(rootDirectory, info)
 
         if(destination.exists()) {

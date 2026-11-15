@@ -9,10 +9,10 @@ import kotlin.io.path.div
 
 class RootDirectory(path: Path): Directory(path) {
     constructor(path: String) : this(Path.of(path))
-    val pckd   = Directory(path / ".pckd"      )
-    val assets = Directory(path / "assets"     )
+    val pckd   = Directory(path / ".pckd")
+    val assets = Directory(path / "assets")
     val meta   = File     (path / "pack.mcmeta")
-    val icon   = File     (path / "pack.png"   )
+    val icon   = File     (path / "pack.png")
     
     val groupsConfig = configFile<MutableSet<Key>>(
         pckd / "groups.json",
@@ -21,4 +21,12 @@ class RootDirectory(path: Path): Directory(path) {
     val groups get() = groupsConfig()
     
     fun isValid() : Boolean = meta.exists()
+    
+    fun gatherAllKeys(): List<Key> {
+        assets
+
+        assets.walk()
+        
+        return emptyList()
+    }
 }

@@ -4,10 +4,9 @@ import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.Placeholder
 import me.flamingo.pckd.backend.config.getResource
 import me.flamingo.pckd.backend.key.Key
-import kotlin.io.path.writeText
 
 class ItemResource(
-    baseKey: Key,
+    private val baseKey: Key,
     rootDirectory: RootDirectory
 ) : JsonResource<ItemResource, ItemResource.Companion>(
     normalize(baseKey), 
@@ -33,10 +32,10 @@ class ItemResource(
         file.ensure()
 
         val text = getResource("/defaults/item/default.json")?.readText(Charsets.UTF_8) ?: return false
-        file.path.writeText(Placeholder.applyAll(text) {
+        file.writeText(Placeholder.applyAll(text) {
             it.root = rootDirectory
             it.path = getFile().path
-            it.key  = key
+            it.key  = baseKey
         })
 
         return true

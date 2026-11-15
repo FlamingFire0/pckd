@@ -29,7 +29,6 @@ import me.flamingo.pckd.frontend.screens.editor.groupeditor.GroupEditor
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
 import me.flamingo.pckd.frontend.utilities.ObservableList
-import kotlin.io.path.name
 
 class Editor(
     val rootDirectory: RootDirectory,
@@ -37,50 +36,51 @@ class Editor(
 ) : Screen {
     
     companion object {
-        private val paneState = PanesState(350.dp)
+        val paneState = PanesState(350.dp)
     }
     
     val keys = ObservableList(rootDirectory.groups)
     var selected: Key? by mutableStateOf(selected.takeIf { it in keys })
     
-    val treeRoot: TreeGroup = TreeGroup(rootDirectory.path.name, mergeable = false)
+    val treeRoot: TreeGroup = TreeGroup(rootDirectory.name, mergeable = false)
     
-    fun reload() {
+    fun reload(): Editor {
         val newEditor = Editor(RootDirectory(rootDirectory.path), selected)
         Screen.replace(newEditor)
+        return newEditor
+    }
+    
+    fun openGroupEditor() = GroupEditor(this).also { Screen.open(it) }
+
+    @Composable
+    fun TopBarButton(name: String, icon: ImageVector, onClick: () -> Unit) {
+        Tooltip(name) {
+            SmallButton(
+                onClick,
+                Modifier.size(40.dp).aspectRatio(1f),
+            ) {
+                Icon(icon, it, Modifier.size(25.dp))
+            }
+        }
     }
     
     @Composable
     fun TopBar() = Row(Modifier.fillMaxWidth().padding(vertical = 5.dp).height(40.dp), verticalAlignment = Alignment.CenterVertically) {
-        
-        @Composable
-        fun Button(name: String, icon: ImageVector, onClick: () -> Unit) {
-            Tooltip(name) {
-                SmallButton(
-                    onClick,
-                    Modifier.size(40.dp).aspectRatio(1f),
-                ) {
-                    Icon(icon, it, Modifier.size(25.dp))
-                }
-            }
-        }
 
         Spacer(Modifier.width(5.dp))
-        Button("Back", Icons.Rounded.KeyboardDoubleArrowLeft, Screen::back)
+        TopBarButton("Back", Icons.Rounded.KeyboardDoubleArrowLeft, Screen::back)
         Spacer(Modifier.width(7.dp))
-        Button("Reload", Icons.Rounded.Refresh, ::reload)
+        TopBarButton("Reload", Icons.Rounded.Refresh, ::reload)
         Spacer(Modifier.width(7.dp))
-        Button("Modify Groups", Icons.Rounded.Edit) { 
-            Screen.open(GroupEditor(this@Editor))
-        }
+        TopBarButton("Modify Groups", Icons.Rounded.Edit, ::openGroupEditor)
         Spacer(Modifier.width(7.dp))
-        Button("Groups (JSON)", Icons.Rounded.DataObject) { 
+        TopBarButton("Groups (JSON)", Icons.Rounded.DataObject) { 
             rootDirectory.groupsConfig.open(rootDirectory)
         }
     }
     
     @Composable
-    fun Pane(content: @Composable () -> Unit) = Surface(
+    fun EditorPane(content: @Composable () -> Unit) = Surface(
         color = Mocha.mantle,
         modifier = Modifier.fillMaxSize().padding(5.dp),
         shape = Theme.Shapes.small
@@ -91,7 +91,7 @@ class Editor(
     }
     
     @Composable
-    fun SelectorPane() = Pane {
+    fun SelectorPane() = EditorPane {
         val selectedEntry = remember { mutableStateOf<TreeEntry?>(null) }
         
         if(treeRoot.children.isEmpty())
@@ -108,7 +108,7 @@ class Editor(
     }
     
     @Composable
-    fun EditorPane() = Pane {
+    fun EditorPane() = EditorPane {
         Row(Modifier.padding(20.dp)) {
             val group = ResourceGroup(rootDirectory, selected ?: return@Row)
 
@@ -122,7 +122,7 @@ class Editor(
 
     @Composable
     override fun Content() = Box() {
-        Column(Modifier.fillMaxSize().padding(6.dp)) {
+        Column(Modifier.fillMaxSize().padding(5.5.dp)) {
             TopBar()
 
             Panes(

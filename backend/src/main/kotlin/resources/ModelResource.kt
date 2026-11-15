@@ -5,7 +5,6 @@ import me.flamingo.pckd.backend.config.Placeholder
 import me.flamingo.pckd.backend.config.getResource
 import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.key.Key
-import kotlin.io.path.writeText
 
 class ModelResource(
     key: Key,
@@ -21,7 +20,7 @@ class ModelResource(
         file.ensure()
         
         val text = getResource("/defaults/model/default.json")?.readText(Charsets.UTF_8) ?: return false
-        file.path.writeText(Placeholder.applyAll(text) {
+        file.writeText(Placeholder.applyAll(text) {
             it.root = rootDirectory
             it.path = getFile().path
             it.key  = key

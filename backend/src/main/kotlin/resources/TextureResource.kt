@@ -7,7 +7,9 @@ import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.common.filesystem.File
 import me.flamingo.pckd.common.logger
 import java.nio.file.Path
-import kotlin.io.path.*
+import kotlin.io.path.exists
+import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.notExists
 
 class TextureResource(
     key: Key, 
@@ -16,8 +18,8 @@ class TextureResource(
     fun getMeta() = File("${getFile()}.mcmeta")
     
     fun getAseprite(): File {
-        val long  = getFile().path.let { it.resolveSibling("${it.nameWithoutExtension}.aseprite") }
-        val short = getFile().path.let { it.resolveSibling("${it.nameWithoutExtension}.ase") }
+        val long  = getFile().let { it.resolveSibling("${it.nameWithoutExtension}.aseprite") }
+        val short = getFile().let { it.resolveSibling("${it.nameWithoutExtension}.ase") }
         return File(if(long.notExists() && short.exists()) short else long)
     }
     
@@ -33,7 +35,7 @@ class TextureResource(
         file.ensure()
 
         val text = getResource("/defaults/texture/default.png")?.readBytes() ?: return false
-        file.path.writeBytes(text)
+        file.writeBytes(text)
 
         return true
     }
@@ -43,7 +45,7 @@ class TextureResource(
     override fun moveTo(newKey: Key): Path? {
         val destination = super.moveTo(newKey) ?: return null
         
-        getMeta().path.let { oldMeta -> 
+        getMeta().let { oldMeta -> 
             if(oldMeta.notExists()) return@let
             val newMeta = destination.resolveSibling("${destination.fileName}.mcmeta")
             
@@ -55,7 +57,7 @@ class TextureResource(
             oldMeta.moveTo(newMeta)
         }
         
-        getAseprite().path.let { oldAse ->
+        getAseprite().let { oldAse ->
             if(oldAse.notExists()) return@let
             val newAse  = destination.resolveSibling("${destination.nameWithoutExtension}.aseprite")
             
