@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import me.flamingo.pckd.backend.key.Key
 import me.flamingo.pckd.frontend.components.FocusBox
 import me.flamingo.pckd.frontend.components.RowButton
+import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.cube
@@ -29,6 +30,7 @@ class TreeEntry(
     val key: Key,
     override var parent: TreeGroup?,
     selected: Boolean = false,
+    val contextActions: MutableList<ContextAction>.(TreeEntry) -> Unit = {},
     val onClick: (TreeEntry) -> Unit = {}, 
 ) : TreeElement {
     var isSelected by mutableStateOf(selected)
@@ -42,9 +44,7 @@ class TreeEntry(
         
         
         
-        ContextMenu(listOf(
-            
-        )) {
+        ContextMenu(mutableListOf<ContextAction>().apply { contextActions(this@TreeEntry) }) {
             FocusBox(
                 left  = FocusBox::moveUp,
                 right = FocusBox::moveDown,

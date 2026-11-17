@@ -2,6 +2,7 @@ package me.flamingo.pckd.frontend.components.tree
 
 import androidx.compose.runtime.MutableState
 import me.flamingo.pckd.backend.key.Key
+import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 
 private class TreeNode(val name: String) {
     val children = linkedMapOf<String, TreeNode>()
@@ -9,8 +10,9 @@ private class TreeNode(val name: String) {
 }
 
 fun Iterable<Key>.toTree(
-    autoSelect: Key? = null,
+    autoSelect: ((Key) -> Boolean) = { false },
     selectedVariable: MutableState<TreeEntry?>? = null,
+    contextActions: MutableList<ContextAction>.(TreeEntry) -> Unit = {},
     onSelect: TreeEntry.(Key) -> Unit = {},
 ): List<TreeElement> {
     val roots = linkedMapOf<String, TreeNode>()
@@ -41,13 +43,16 @@ fun Iterable<Key>.toTree(
     fun build(node: TreeNode, parent: TreeGroup?): TreeElement {
         if (node.children.isEmpty()) {
             val key = requireNotNull(node.key) { "Leaf node '${node.name}' has no key" }
-            val selected = key == autoSelect
+            val selected = autoSelect(key)
+
+
 
             val entry = TreeEntry(
                 name = node.name,
                 key = key,
                 parent = parent,
                 selected = selected,
+                contextActions = contextActions,
                 onClick = { it.onSelect(key) },
             )
 

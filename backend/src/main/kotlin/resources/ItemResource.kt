@@ -20,7 +20,9 @@ class ItemResource(
     companion object : ResourceInfo<Companion, ItemResource>(
         "items", "json", ::ItemResource
     ) {
-        fun normalize(name: String) = name.removePrefix("item/")
+        const val GENERIC_DIRECTORY = "item/"
+
+        fun normalize(name: String) = name.removePrefix(GENERIC_DIRECTORY)
         override fun normalize(key: Key) = key.copy(value = normalize(key.value))
     }
 

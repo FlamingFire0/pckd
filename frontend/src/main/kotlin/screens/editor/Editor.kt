@@ -8,7 +8,10 @@ import androidx.compose.material.icons.rounded.DataObject
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.KeyboardDoubleArrowLeft
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -20,6 +23,7 @@ import me.flamingo.pckd.frontend.components.Panes
 import me.flamingo.pckd.frontend.components.PanesState
 import me.flamingo.pckd.frontend.components.ScrollPane
 import me.flamingo.pckd.frontend.components.SmallButton
+import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.components.tree.TreeEntry
 import me.flamingo.pckd.frontend.components.tree.TreeGroup
@@ -41,8 +45,46 @@ class Editor(
     
     val keys = ObservableList(rootDirectory.groups)
     var selected: Key? by mutableStateOf(selected.takeIf { it in keys })
-    
-    val treeRoot: TreeGroup = TreeGroup(rootDirectory.name, mergeable = false)
+    var selectedEntry = mutableStateOf<TreeEntry?>(null)
+
+    var treeRoot: TreeGroup by mutableStateOf(loadTree())
+
+    fun loadTree(): TreeGroup =
+        TreeGroup(
+            rootDirectory.name,
+            mergeable = false,
+            children = keys.toTree(
+                { it == selected },
+                selectedEntry,
+                {
+                    add(ContextAction("Remove") {
+                        removeKey(it.key)
+                    })
+                }
+            ) {
+                selectedEntry.value?.isSelected = false
+                isSelected = true
+                selectedEntry.value = this
+                selected = it
+            }
+        )
+
+    fun addKey(key: Key) {
+        keys.add(key)
+        updateKeys()
+    }
+
+    fun removeKey(key: Key) {
+        keys.remove(key)
+        updateKeys()
+    }
+
+    private fun updateKeys() {
+        rootDirectory.groupsConfig.save()
+
+        keys.invalidate()
+        treeRoot = loadTree()
+    }
     
     fun reload(): Editor {
         val newEditor = Editor(RootDirectory(rootDirectory.path), selected)
@@ -92,18 +134,6 @@ class Editor(
     
     @Composable
     fun SelectorPane() = EditorPane {
-        val selectedEntry = remember { mutableStateOf<TreeEntry?>(null) }
-        
-        if(treeRoot.children.isEmpty())
-            treeRoot.children.addAll(
-                keys.toTree(selected, selectedEntry) {
-                    selectedEntry.value?.isSelected = false
-                    isSelected = true
-                    selectedEntry.value = this
-                    selected = it
-                },
-            )
-        
         treeRoot.content()
     }
     

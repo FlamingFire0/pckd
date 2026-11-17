@@ -25,6 +25,6 @@ fun Path.shorten(): String {
 }
 
 private fun String.abbreviate(): String {
-    val chars = if (startsWith(".") && length > 1) 2 else 1
+    val chars = if ((startsWith(".") || contains(":")) && length > 1) 2 else 1
     return substring(0, offsetByCodePoints(0, minOf(chars, codePointCount(0, length))))
 }

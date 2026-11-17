@@ -10,6 +10,7 @@ import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.resources.ResourceInfo
 import java.nio.file.Path
 import kotlin.io.path.div
+import kotlin.io.path.relativeTo
 
 @Serializable(with = Key.Companion::class)
 data class Key(
@@ -42,6 +43,20 @@ data class Key(
     constructor(string: String): this(
         string.substringBefore(NAMESPACE_DELIMITER, DEFAULT_NAMESPACE),
         string.substringAfter(NAMESPACE_DELIMITER),
+    )
+
+    constructor(pair: Pair<String, String>) : this(pair.first, pair.second)
+
+    constructor(
+        path: Path,
+        root: RootDirectory,
+        generalize: (String) -> String = { it }
+    ) : this(
+        path.relativeTo(root.assets.path).let {
+            it.first().toString() to it.drop(2).joinToString("/").substringBeforeLast('.')
+        }.let { (namespace, value) ->
+            namespace to generalize(value)
+        }
     )
         
     //constructor(path: Path, rootDirectory: RootDirectory) : this(
