@@ -16,6 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import me.flamingo.pckd.backend.ResourceGroup
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.key.Key
@@ -28,26 +34,42 @@ import me.flamingo.pckd.frontend.components.tooltip.Tooltip
 import me.flamingo.pckd.frontend.components.tree.TreeEntry
 import me.flamingo.pckd.frontend.components.tree.TreeGroup
 import me.flamingo.pckd.frontend.components.tree.toTree
+import me.flamingo.pckd.frontend.config.Configs
+import me.flamingo.pckd.frontend.config.Preferences
 import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.screens.editor.groupeditor.GroupEditor
 import me.flamingo.pckd.frontend.theming.Mocha
 import me.flamingo.pckd.frontend.theming.Theme
+import me.flamingo.pckd.frontend.utilities.ComposeStateFlow
+import me.flamingo.pckd.frontend.utilities.DefaultScope
 import me.flamingo.pckd.frontend.utilities.ObservableList
 
 class Editor(
     val rootDirectory: RootDirectory,
     selected: Key? = null
 ) : Screen {
-    
-    companion object {
-        val paneState = PanesState(350.dp)
+
+    @Serializable
+    class EditorPreferences(
+        val panesState: PanesState = PanesState(350.dp)
+    )
+
+    override fun onBack() {
+        rootDirectory.groupsConfig.save()
+        Preferences.save()
     }
     
     val keys = ObservableList(rootDirectory.groups)
     var selected: Key? by mutableStateOf(selected.takeIf { it in keys })
     var selectedEntry = mutableStateOf<TreeEntry?>(null)
 
-    var treeRoot: TreeGroup by mutableStateOf(loadTree())
+    var treeRoot: TreeGroup? by ComposeStateFlow(null)
+
+    init {
+        DefaultScope.launch(Dispatchers.Default) {
+            treeRoot = loadTree()
+        }
+    }
 
     fun loadTree(): TreeGroup =
         TreeGroup(
@@ -134,7 +156,7 @@ class Editor(
     
     @Composable
     fun SelectorPane() = EditorPane {
-        treeRoot.content()
+        treeRoot?.content()
     }
     
     @Composable
@@ -156,7 +178,7 @@ class Editor(
             TopBar()
 
             Panes(
-                state = paneState,
+                state = Configs.preferences.editor.panesState,
                 left  = ::SelectorPane,
                 right = ::EditorPane,
             )

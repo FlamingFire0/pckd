@@ -21,13 +21,13 @@ import io.github.vinceglb.filekit.path
 import me.flamingo.pckd.backend.RootDirectory
 import me.flamingo.pckd.backend.config.History
 import me.flamingo.pckd.common.Directories
-import me.flamingo.pckd.frontend.App
 import me.flamingo.pckd.frontend.components.Grouping
 import me.flamingo.pckd.frontend.components.RowButton
 import me.flamingo.pckd.frontend.components.SmallButton
 import me.flamingo.pckd.frontend.components.contextmenu.ContextAction
 import me.flamingo.pckd.frontend.components.contextmenu.ContextMenu
 import me.flamingo.pckd.frontend.components.tooltip.Tooltip
+import me.flamingo.pckd.frontend.config.Configs
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.editor.Editor
@@ -138,7 +138,7 @@ object Home : Screen {
                 Tooltip("Reload") {
                     SmallButton(
                         onClick = {
-                            App.configFiles.forEach { config -> config.reload() }
+                            Configs.all.forEach { config -> config.reload() }
                         },
                         Modifier.size(50.dp).aspectRatio(1f),
                         backgroundColor = Mocha.base,

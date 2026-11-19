@@ -9,13 +9,13 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import io.github.vinceglb.filekit.FileKit
-import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.frontend.components.dialogs.ErrorDialog
-import me.flamingo.pckd.frontend.config.Config
+import me.flamingo.pckd.frontend.config.Configs
 import me.flamingo.pckd.frontend.resources.Res
 import me.flamingo.pckd.frontend.resources.pckd
 import me.flamingo.pckd.frontend.screens.Screen
 import me.flamingo.pckd.frontend.theming.Theme
+import me.flamingo.pckd.frontend.utilities.DefaultScope
 import me.flamingo.pckd.frontend.utilities.ErrorHandler
 import org.jetbrains.compose.resources.painterResource
 import java.awt.Dimension
@@ -23,11 +23,6 @@ import javax.swing.SwingUtilities
 
 object App {
     const val NAME = "pckd"
-    
-    val configFiles = listOf(
-        Programs,
-        Config
-    )
 
     init {
         Thread.setDefaultUncaughtExceptionHandler { _, e ->
@@ -39,7 +34,7 @@ object App {
     fun ApplicationScope.App() {
         Window(
             title = NAME,
-            onCloseRequest = ::exitApplication,
+            onCloseRequest = { exit(::exitApplication) },
             icon = painterResource(Res.drawable.pckd)
         ) {
             window.minimumSize = Dimension(500, 350)
@@ -56,10 +51,16 @@ object App {
         }
     }
 
+    fun exit(quitApp: () -> Unit) {
+        Configs.all.forEach { it.save() }
+        DefaultScope.cancel()
+        quitApp()
+    }
+
     @JvmStatic
     fun main(args: Array<String>) {
         FileKit.init(NAME)
-        configFiles.forEach { it.createDefaultIfNotExists() }
+        Configs.all.forEach { it.createDefaultIfNotExists() }
         application { App() }
     }
 }

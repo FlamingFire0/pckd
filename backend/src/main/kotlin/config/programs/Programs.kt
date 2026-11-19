@@ -22,5 +22,3 @@ class Programs private constructor(
         ::Programs
     )
 }
-
-val programs: Programs get() = Programs()

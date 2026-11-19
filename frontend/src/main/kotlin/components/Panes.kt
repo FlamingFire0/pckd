@@ -14,6 +14,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import java.awt.Cursor
 import kotlin.math.roundToInt
 
@@ -105,6 +112,23 @@ fun ScrollPane(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
 }
 
 @Stable
+@Serializable(with = PanesState.Companion::class)
 class PanesState(initialLeft: Dp = 240.dp) {
     var left by mutableStateOf(initialLeft)
+
+    companion object : KSerializer<PanesState> {
+        override val descriptor: SerialDescriptor =
+            PrimitiveSerialDescriptor(PanesState::class.qualifiedName!!, PrimitiveKind.FLOAT)
+
+        override fun serialize(
+            encoder: Encoder,
+            value: PanesState
+        ) {
+            encoder.encodeFloat(value.left.value)
+        }
+
+        override fun deserialize(decoder: Decoder): PanesState {
+            return PanesState(decoder.decodeFloat().dp)
+        }
+    }
 }

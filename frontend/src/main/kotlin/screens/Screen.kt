@@ -10,6 +10,10 @@ interface Screen {
     @Composable
     fun Content()
 
+    fun onBack() = Unit
+    fun onOpen() = Unit
+    fun onNext() = Unit
+
     companion object {
         val defaultScreen = Home
         
@@ -23,12 +27,17 @@ interface Screen {
         val current: Screen get() = currentEntry.screen
         
         fun open(screen: Screen) {
+            current.onNext()
             screenStack.add(ScreenEntry(screen))
+            screen.onOpen()
         }
         
         fun back(): Boolean {
             if (screenStack.size <= 1) return false
-            popped += screenStack.removeLast()
+            val previousScreen = screenStack.removeLast()
+            popped += previousScreen
+
+            previousScreen.screen.onBack()
             return true
         }
         

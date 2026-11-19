@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import me.flamingo.pckd.frontend.config.Config
+import me.flamingo.pckd.frontend.config.Configs
 
 object Theme {
     val LocalFontFamily = staticCompositionLocalOf<FontFamily> { FontFamily.Monospace }
@@ -60,10 +60,9 @@ object Theme {
     
     @Composable
     fun Provider(content: @Composable () -> Unit) {
-        val config by Config.state.collectAsState()
         val systemDensity = LocalDensity.current
-        val density = remember(config.scale) { 
-            config.scale?.let { Density(it, systemDensity.fontScale) } ?: systemDensity 
+        val density = remember(Configs.editor.scale) {
+            Configs.editor.scale?.let { Density(it, systemDensity.fontScale) } ?: systemDensity
         }
 
         val font = jetbrainsMono()

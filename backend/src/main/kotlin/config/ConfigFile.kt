@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import me.flamingo.pckd.backend.RootDirectory
-import me.flamingo.pckd.backend.config.programs.programs
+import me.flamingo.pckd.backend.config.programs.Programs
 import me.flamingo.pckd.backend.serialization.commonSerializersModule
 import me.flamingo.pckd.backend.serialization.json
 import me.flamingo.pckd.common.filesystem.File
@@ -61,7 +61,7 @@ open class ConfigFile<T: Any>(
     
     
     fun open(rootDirectory: RootDirectory? = null) {
-        programs.textProgram.run(path, rootDirectory)
+        Programs.value.textProgram.run(path, rootDirectory)
     }
     
     companion object {
